@@ -11,6 +11,7 @@ object FileHandler {
   def loadFiles(gameStore : GameStore): Unit = {
     loadItems(gameStore)
     loadEmployee(gameStore)
+    loadReceipts(gameStore)
   }
 
   def loadItems(gameStore : GameStore) = {
@@ -29,6 +30,19 @@ object FileHandler {
     for (line <- nonGamefileStrings) {
       val newItem = new Item(line(0).toInt, line(1), line(2).toDouble, line(3).toDouble, line(4).toInt, line(5))
       gameStore.addItem(newItem)
+    }
+  }
+
+  def loadReceipts(gameStore : GameStore) = {
+    val receiptItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt").getLines().toList
+    val receiptStrings = receiptItems.map(str => str.split(";"))
+
+    gameStore.receipts = ListBuffer.empty[Receipt]
+
+    // game items
+    for (line <- receiptStrings) {
+      val newItem = new Receipt(line(0).toInt, line(1).split(",").map(string => string.toDouble).toList, line(2).toDouble, line(3).split(",").toList, line(4), line(5))
+      gameStore.addReceipt(newItem)
     }
   }
 
@@ -54,7 +68,7 @@ object FileHandler {
     items.foreach(item => itemsWriter.println(item.toString))
     itemsWriter.close()
   }
-
+  
   def saveEmployee(employees: ListBuffer[Employee]): Unit = {
     val employeeWriter = new PrintWriter(new File("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/Employee"))
     employees.foreach(employee => employeeWriter.println(employee.toString))
@@ -70,5 +84,10 @@ object FileHandler {
       val employee = new Employee(line(0).toInt, line(1), line(2), line(3).toBoolean, line(4), line(5), line(6))
       gameStore.addEmployee(employee)
     }
+    
+  def saveReceipts(gameStore : GameStore) = {
+    val receiptWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt"))
+    gameStore.getReceipts().map(receipt => receipt.toWritableString()).foreach(receipt => receiptWriter.println(receipt.toString))
+    receiptWriter.close()
   }
 }

@@ -24,4 +24,6 @@ class Item(i_id : Int, itemName: String, itemStockPrice : Double, sPrice: Double
   def setStockRemaining(newStockValue : Int) = stock = newStockValue
 
   def getItemType() = itemtype
+
+  override def toString: String = List(id.toString, name, stockPrice.toString, salePrice.toString, stock.toString, itemtype).mkString(",")
 }

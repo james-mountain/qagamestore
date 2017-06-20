@@ -12,28 +12,15 @@ class GameStore {
   //var customers = List[Customers]
   //var receipts == List[Receipt]
 
-  def loadItems() = {
-    val gameFileItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/games.txt").getLines().toList
-    val nonGameItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/items.txt").getLines().toList
-    val gameFileStrings = gameFileItems.map(str => str.split(","))
-    val nonGamefileStrings = nonGameItems.map(str => str.split(","))
-
-    // game items
-    for (line <- gameFileStrings) {
-      val newItem = new Game(line(0).toInt, line(1), line(2).toDouble, line(3).toDouble, line(4).toInt, line(5), LocalDate.parse(line(6)), line(7))
-      addItem(newItem)
-    }
-
-    // non game items
-    for (line <- nonGamefileStrings) {
-      val newItem = new Item(line(0).toInt, line(1), line(2).toDouble, line(3).toDouble, line(4).toInt, line(5))
-      addItem(newItem)
-    }
-  }
-
-
   def getItems() = items
   def addItem(item : Item) = items += item
-  def updateItem(itemid : Int) = {}
-  def deleteItem() = {}
+  def updateItem(itemid : Int) : Item = {
+    items.filter(item => item.getID() == itemid).head
+  }
+  def deleteItem(itemid : Int) : Boolean = {
+    items.find(item => item.getID() == itemid) match {
+      case None => false
+      case Some(item) => items.remove(items.indexOf(item)); true
+    }
+  }
 }

@@ -13,4 +13,6 @@ class Game(i_id : Int, itemName: String, itemStockPrice : Double, sPrice: Double
   def getReleased() : Boolean = {
     releaseDate.isBefore(LocalDate.now())
   }
+
+  override def toString: String = List(id.toString, name, stockPrice.toString, salePrice.toString, stock.toString, itemtype, releaseDate.toString, gameRating).mkString(",")
 }

@@ -1,6 +1,5 @@
-id, Name, stockPrice, salePrice, Stock, Type, releaseDate, rating
-1, Assassin's Creed: Revelations, 12:99, 23:99, 25, XBOX 360, 12/12/2017, 15
-2, Battlefield 4, 13.99, 24.99, 23, PS3, 12/12/2017, 15,
+1, Assassin's Creed: Revelations, 12.99, 23.99, 25, XBOX 360, 12/12/2017, 15
+2, Battlefield 4, 13.99, 24.99, 23, PS3, 12/12/2017, 15
 3, Mortal kombat 4, 12.99, 21.99, 30, PS3, 12/12/2017, 18
 4, Splinter cell, 15.99, 30.99, 12, XBOX 360, 12/12/2017, 18
 5, Halo: Reach, 14.99, 32.99, 14, XBOX 360, 12/12/2017, 15

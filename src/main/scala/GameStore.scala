@@ -7,6 +7,8 @@ class GameStore {
   //var customers = List[Customers]
   //var receipts == List[Receipt]
 
+  def loadItems() = {}
+
   def getItems() = items
 
   def addItem() = {}

@@ -26,7 +26,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
     gamestore.addItem(newitem)
     gamestore.getItems().length shouldBe 1
     gamestore.updateItem(itemid).setStockPrice(newstockprice)
-    gamestore.getItems().filter(item => item.getID() == itemid).head.getStockPrice() == newstockprice
+    gamestore.getItems().filter(item => item.getID() == itemid).head.getStockPrice() shouldBe newstockprice
   }
 
   it should "be able to add a new customer to its records" in {
@@ -67,15 +67,22 @@ class GameStoreSpec extends FlatSpec with Matchers {
 
   val gameStoreThree = new GameStore
   "Game Store" should "be able to update employee information" in {
-    val employeeid = 5
+    val employeeid = 2
 
-    gameStoreThree.updateEmployee(employeeid)
+    FileHandler.loadFiles(gameStoreThree)
+
+    gameStoreThree.updateEmployee(employeeid).setIsManager(true)
+    gameStoreThree.getEmployees().filter(emply => emply.getId() == employeeid).head.getIsManager() shouldBe true
   }
 
-  it should "be able to update customer information also" in {
-    val customerid = 7
+  it should "be able to delete employees (released/fired)" in {
+    val employeeid = 2
 
-    gameStoreThree.updateCustomer(customerid)
+    FileHandler.loadFiles(gameStoreThree)
+
+    val amountOfEmployees = gameStoreThree.getEmployees().length
+    gameStoreThree.deleteEmployeeByID(employeeid)
+    gameStoreThree.getEmployees().length < amountOfEmployees shouldBe true
   }
 
   val gameStoreFive = new GameStore

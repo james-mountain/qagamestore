@@ -31,12 +31,12 @@ class GameStoreSpec extends FlatSpec with Matchers {
   val anothergamestore = new GameStore
   "Another Game Store" should "be able load the items from a file to import" in {
     FileHandler.loadFiles(anothergamestore)
-    anothergamestore.getEmployees.length shouldBe 19
+    anothergamestore.getItems().length shouldBe 19
   }
 
   it should "be able load the employees from a file to import" in {
     FileHandler.loadFiles(anothergamestore)
-    anothergamestore.getEmployees.length shouldBe 3
+    anothergamestore.getEmployees().length shouldBe 3
   }
 
   val gameStoreThree = new GameStore
@@ -56,7 +56,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
   "Game Store" should "be able to load all the previous receipts" in {
     FileHandler.loadFiles(gameStoreFive)
 
-    gameStoreFive.getReceipts().length shouldBe 1
+    gameStoreFive.getReceipts().length should be > 0
     gameStoreFive.getReceipts().foreach(receipt => println(receipt.toString()))
   }
 

@@ -8,6 +8,8 @@ import scala.io.Source
   * Created by Administrator on 20/06/2017.
   */
 object FileHandler {
+  val prefixfilename = "C:/Users/Administrator/Desktop/GAMESTORE/"
+
   def loadFiles(gameStore : GameStore): Unit = {
     loadItems(gameStore)
     loadEmployee(gameStore)
@@ -15,8 +17,8 @@ object FileHandler {
   }
 
   def loadItems(gameStore : GameStore) = {
-    val gameFileItems = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/games").getLines().toList
-    val nonGameItems = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/items").getLines().toList
+    val gameFileItems = Source.fromFile(prefixfilename + "games.txt").getLines().toList
+    val nonGameItems = Source.fromFile(prefixfilename + "items.txt").getLines().toList
     val gameFileStrings = gameFileItems.map(str => str.split(","))
     val nonGamefileStrings = nonGameItems.map(str => str.split(","))
 
@@ -34,7 +36,7 @@ object FileHandler {
   }
 
   def loadReceipts(gameStore : GameStore) = {
-    val receiptItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt").getLines().toList
+    val receiptItems = Source.fromFile(prefixfilename + "receipts.txt").getLines().toList
     val receiptStrings = receiptItems.map(str => str.split(";"))
 
     gameStore.receipts = ListBuffer.empty[Receipt]
@@ -60,24 +62,26 @@ object FileHandler {
       case item: Item => items += item
     }
 
-    val gamesWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/games.txt"))
+    val gamesWriter = new PrintWriter(new File(prefixfilename + "games.txt"))
     games.foreach(game => gamesWriter.println(game.toString))
     gamesWriter.close()
 
-    val itemsWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/items.txt"))
+    val itemsWriter = new PrintWriter(new File(prefixfilename + "items.txt"))
     items.foreach(item => itemsWriter.println(item.toString))
     itemsWriter.close()
   }
   
   def saveEmployee(employees: ListBuffer[Employee]): Unit = {
-    val employeeWriter = new PrintWriter(new File("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/Employee"))
+    val employeeWriter = new PrintWriter(new File(prefixfilename + "employee.txt"))
     employees.foreach(employee => employeeWriter.println(employee.toString))
     employeeWriter.close()
   }
 
   def loadEmployee(gameStore : GameStore): Unit = {
-    val employees = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/Employee").getLines().toList
+    val employees = Source.fromFile(prefixfilename + "employee.txt").getLines().toList
     val employeeStrings = employees.map(str => str.split(","))
+
+    gameStore.employees = ListBuffer.empty[Employee]
 
     for (line <- employeeStrings) {
       //id, Name, Email, isManager, Address. Tel, Passport
@@ -87,7 +91,7 @@ object FileHandler {
   }
     
   def saveReceipts(gameStore : GameStore) = {
-    val receiptWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt"))
+    val receiptWriter = new PrintWriter(new File(prefixfilename + "receipts.txt"))
     gameStore.getReceipts().map(receipt => receipt.toWritableString()).foreach(receipt => receiptWriter.println(receipt.toString))
     receiptWriter.close()
   }

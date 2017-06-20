@@ -27,8 +27,8 @@ object GuiProgramOne {
   def main(args: Array[String]) {
     // val ui = new MainGUI
     // ui.visible = true
-    val r=new Receipt(1,ListBuffer[Double](),0,ListBuffer[String](),"Cash")
-    r.addItem(new Item(1,"First",10,15,150,"PC"),2)
+    val r=new Receipt(1)
+    r.addItem(new Item(1,"Playstation PS4",0,150,150,"PC"),2)
    println(r.toString())
 
   }

@@ -6,8 +6,6 @@ object Main {
     println("Hello World")
     println("New line added")
     println("Brand new line")
-
-    val person = new Employee(0, "Gary", "Gary@gmail.com", true, "1 Long Road", "01234567899", "Password")
-    println(person.getIsManager())
+    println("new line")
   }
 }

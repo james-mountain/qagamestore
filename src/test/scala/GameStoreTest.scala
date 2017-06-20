@@ -98,5 +98,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
     val gameStoreSix = new GameStore
     FileHandler.loadFiles(gameStoreSix)
     gameStoreSix.getReceipts().foreach(receipt => println(receipt.toString()))
+    println("Total profit for 2017-06-20 ="+gameStoreSix.totalProfitForDay("2017-06-20"))
+    //gameStoreSix.dailyReceiptsByDate("2017-06-20")
   }
 }

@@ -33,4 +33,17 @@ class GameStoreSpec extends FlatSpec with Matchers {
     FileHandler.loadFiles(anothergamestore)
     anothergamestore.getItems.length shouldBe 19
   }
+
+  val gameStoreThree = new GameStore
+  "Game Store" should "be able to update employee information" in {
+    val employeeid = 5
+
+    gameStoreThree.updateEmployee(employeeid)
+  }
+
+  it should "be able to update customer information also" in {
+    val customerid = 7
+
+    gameStoreThree.updateCustomer(customerid)
+  }
 }

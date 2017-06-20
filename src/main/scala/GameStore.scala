@@ -10,7 +10,7 @@ class GameStore {
   var items : ListBuffer[Item] = ListBuffer.empty[Item]
   var employees : ListBuffer[Employee] = ListBuffer.empty[Employee]
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
-  var receipts = List[Receipt]
+  //var receipts = List[Receipt]
 
   def getItems() = items
   def getEmployees() : ListBuffer[Employee] = { employees }

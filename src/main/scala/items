@@ -1,0 +1,12 @@
+id,Name,stockPrice,salePrice,Stock,Type
+1,XBOX:ONE,299.99,314.99,25,Console
+2,PS4,229.99,319.99,12,Console
+3,XBOX:360,219.99,300.00,23,Console
+4,PS3,140.99,219,99,30,Console
+5,Nintendo:Wii,129.99,299.99,10,Console
+6,PSP,120.99,239.99,34,Portable Device
+7,Nintendo:Wii U,149.99,279.99,36,Portable Device
+8,Nintendo:DS,129.99,239.99,36,Portable Device
+
+
+

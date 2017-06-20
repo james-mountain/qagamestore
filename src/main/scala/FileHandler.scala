@@ -12,6 +12,7 @@ object FileHandler {
 
   def loadFiles(gameStore : GameStore): Unit = {
     loadItems(gameStore)
+    loadCustomer(gameStore)
     loadEmployee(gameStore)
     loadReceipts(gameStore)
   }
@@ -35,6 +36,20 @@ object FileHandler {
     }
   }
 
+  def loadCustomer(gameStore : GameStore) = {
+    val customerRecords = Source.fromFile("C:\\Users\\Administrator\\Desktop\\Customers").getLines().toList
+    val customerStrings = customerRecords.map(str => str.split(","))
+
+    for(line <- customerStrings) {
+      val newCustomer = new Customer(line(0).toInt, line(1), line(2), line(3).toInt)
+      println(line(4))
+      val preOrderString = line(4).split('|').toList
+      for (order <- preOrderString) {
+        newCustomer.addPreOrder(order.toInt)
+      }
+    }   
+  }
+  
   def loadReceipts(gameStore : GameStore) = {
     val receiptItems = Source.fromFile(prefixfilename + "receipts.txt").getLines().toList
     val receiptStrings = receiptItems.map(str => str.split(";"))
@@ -50,6 +65,7 @@ object FileHandler {
 
   def saveFiles(gameStore : GameStore) = {
     saveItems(gameStore)
+    saveCustomer(gameStore)
     saveEmployee(gameStore.employees)
   }
 
@@ -61,7 +77,7 @@ object FileHandler {
       case item: Game => games += item
       case item: Item => items += item
     }
-
+    
     val gamesWriter = new PrintWriter(new File(prefixfilename + "games.txt"))
     games.foreach(game => gamesWriter.println(game.toString))
     gamesWriter.close()
@@ -69,6 +85,18 @@ object FileHandler {
     val itemsWriter = new PrintWriter(new File(prefixfilename + "items.txt"))
     items.foreach(item => itemsWriter.println(item.toString))
     itemsWriter.close()
+  }
+
+  def saveCustomer(gameStore : GameStore) : Unit = {
+    val customers = ListBuffer.empty[Customer]
+
+    gameStore.getCustomers().foreach {
+      case customer: Customer => customers += customer
+    }
+    
+    val customerWriter = new PrintWriter(new File("C:\\Users\\Administrator\\Desktop\\customers"))
+    customers.foreach(customer => customerWriter.println(customer.toString))
+    customerWriter.close()
   }
   
   def saveEmployee(employees: ListBuffer[Employee]): Unit = {

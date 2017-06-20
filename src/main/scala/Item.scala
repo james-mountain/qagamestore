@@ -10,13 +10,18 @@ class Item(i_id : Int, itemName: String, itemStockPrice : Double, sPrice: Double
   val itemtype = iType
 
   def getID() = id
-  def getName() = itemName
+
+  def getName() = name
   def setName(newName : String) = name = newName
+
   def getStockPrice() = stockPrice
   def setStockPrice(newPrice : Double) = stockPrice = newPrice
+
   def getSalePrice() = salePrice
   def setSalePrice(newPrice : Double) = salePrice = newPrice
+
   def getStockRemaining() = stock
   def setStockRemaining(newStockValue : Int) = stock = newStockValue
+
   def getItemType() = itemtype
 }

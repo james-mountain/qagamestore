@@ -5,6 +5,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     println("Hello World")
     println("New line added")
+    println("Brand new line")
     println("new line")
   }
 }

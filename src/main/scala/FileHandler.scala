@@ -84,6 +84,7 @@ object FileHandler {
       val employee = new Employee(line(0).toInt, line(1), line(2), line(3).toBoolean, line(4), line(5), line(6))
       gameStore.addEmployee(employee)
     }
+  }
     
   def saveReceipts(gameStore : GameStore) = {
     val receiptWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt"))

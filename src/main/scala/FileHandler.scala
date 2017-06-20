@@ -23,6 +23,8 @@ object FileHandler {
     val gameFileStrings = gameFileItems.map(str => str.split(","))
     val nonGamefileStrings = nonGameItems.map(str => str.split(","))
 
+    gameStore.items = ListBuffer.empty[Item]
+
     // game items
     for (line <- gameFileStrings) {
       val newItem = new Game(line(0).toInt, line(1), line(2).toDouble, line(3).toDouble, line(4).toInt, line(5), LocalDate.parse(line(6)), line(7))
@@ -37,16 +39,18 @@ object FileHandler {
   }
 
   def loadCustomer(gameStore : GameStore) = {
-    val customerRecords = Source.fromFile("C:\\Users\\Administrator\\Desktop\\Customers").getLines().toList
+    val customerRecords = Source.fromFile(prefixfilename + "customers.txt").getLines().toList
     val customerStrings = customerRecords.map(str => str.split(","))
+
+    gameStore.customers = ListBuffer.empty[Customer]
 
     for(line <- customerStrings) {
       val newCustomer = new Customer(line(0).toInt, line(1), line(2), line(3).toInt)
-      println(line(4))
       val preOrderString = line(4).split('|').toList
       for (order <- preOrderString) {
         newCustomer.addPreOrder(order.toInt)
       }
+      gameStore.addCustomer(newCustomer)
     }   
   }
   
@@ -94,7 +98,7 @@ object FileHandler {
       case customer: Customer => customers += customer
     }
     
-    val customerWriter = new PrintWriter(new File("C:\\Users\\Administrator\\Desktop\\customers"))
+    val customerWriter = new PrintWriter(new File(prefixfilename + "customers.txt"))
     customers.foreach(customer => customerWriter.println(customer.toString))
     customerWriter.close()
   }

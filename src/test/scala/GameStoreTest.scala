@@ -61,6 +61,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
   }
 
   it should "be able to load the customers from a file to import" in {
+    FileHandler.loadFiles(anothergamestore)
     anothergamestore.getCustomers().length shouldBe 5
   }
 

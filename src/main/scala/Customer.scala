@@ -13,21 +13,11 @@ class Customer(eId: Int, eFullName: String, eEmail: String, eMembershipPoints : 
 	fullName = eFullName
 	email = eEmail
 
-	def getMembershipPoints() : Int = {
-		membershipPoints
-	}
-	def addMemebershipPoints(points : Int) : Unit = {
-		membershipPoints += points
-	}
-	def removeMembershipPoints(points : Int) : Unit = {
-		membershipPoints -= points
-	}
-	def getPreOrders() : ListBuffer[Int] = {
-		preOrders
-	}
-	def addPreOrder(id : Int) : Unit = {
-		preOrders += id
-	}
+	def getMembershipPoints() : Int = {	membershipPoints }
+	def addMemebershipPoints(points : Int) : Unit = {	membershipPoints += points }
+	def removeMembershipPoints(points : Int) : Unit = {	membershipPoints -= points }
+	def getPreOrders() : ListBuffer[Int] = { preOrders }
+	def addPreOrder(id : Int) : Unit = { preOrders += id }
 	def removePreOrder(id : Int) : Unit = {
 		def iter(index : Int) : Unit = index match {
 			case a if index == preOrders.size => //do nothing
@@ -36,5 +26,7 @@ class Customer(eId: Int, eFullName: String, eEmail: String, eMembershipPoints : 
 		}
 		iter(0)
 	}
-
+	override def toString() : String = {
+		List(id.toString, fullName, email, membershipPoints.toString, preOrders.mkString("|")).mkString(",")
+	}
 }

@@ -10,6 +10,3 @@ id, Name, stockPrice, salePrice, Stock, Type, releaseDate, rating
 9, Dynasty Warriors: 9, 19.99, 34.99, 23, XBOX ONE, 12/12/2017, 12
 10,Elder Scrolls: Skyrim, 23.99, 35.99, 12, PS3, 12/12/2017, 12
 11, WOW, 12.99, 35.99, 6, PC, 12/12/2017, 15
-
-
-

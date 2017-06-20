@@ -35,9 +35,9 @@ class GameStoreSpec extends FlatSpec with Matchers {
   }
 
   it should "be able to remove a customer from its records" in {
-    gamestore.getCustomers.length shouldBe 1
+    val previousCustomers : Int = gamestore.getCustomers.length
     gamestore.deleteCustomerByID(0)
-    gamestore.getCustomers.length shouldBe 0
+    gamestore.getCustomers.length < previousCustomers shouldBe true
   }
 
   it should "be able to update a customers details" in {
@@ -70,12 +70,6 @@ class GameStoreSpec extends FlatSpec with Matchers {
     val employeeid = 5
 
     gameStoreThree.updateEmployee(employeeid)
-  }
-
-  it should "be able to update customer information also" in {
-    val customerid = 7
-
-    gameStoreThree.updateCustomer(customerid)
   }
 
   val gameStoreFive = new GameStore

@@ -10,13 +10,15 @@ class GameStore {
   var items : ListBuffer[Item] = ListBuffer.empty[Item]
   var employees : ListBuffer[Employee] = ListBuffer.empty[Employee]
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
-  var receipts = List[Receipt]
+  var receipts : ListBuffer[Receipt] = ListBuffer.empty[Receipt]
 
   def getItems() = items
   def getEmployees() : ListBuffer[Employee] = { employees }
   def getCustomers() : ListBuffer[Customer] = { customers }
+  def getReceipts() : ListBuffer[Receipt] = { receipts }
 
   def addItem(item : Item) = items += item
+  def addReceipt(receipt : Receipt) = receipts += receipt
   def addEmployee(employee : Employee) : Unit = { employees += employee }
   def addCustomer(customer : Customer) : Unit = { customers += customer }
 
@@ -51,5 +53,26 @@ class GameStore {
       case None => false
       case Some(cust) => customers.remove(customers.indexOf(cust)); true
     }
+  }
+
+  def createNewReceipt(): Receipt = {
+    var counter = receipts.lastOption match {
+      case Some(receipt) => receipt.getId()
+      case None => 0
+    }
+    new Receipt(counter+1)
+  }
+
+  def addItemToReceipt(receipt: Receipt, item : Item, quantity : Int) = {
+    if (quantity <= item.getStockRemaining()) {
+      receipt.addItem(item, quantity)
+      item.setStockRemaining(item.getStockRemaining() - quantity)
+    }
+  }
+
+  def closeReceipt(receipt : Receipt) = {
+    receipts += receipt
+    //FileHandler.saveFiles(this)
+    FileHandler.saveReceipts(this)
   }
 }

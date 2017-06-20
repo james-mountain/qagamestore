@@ -1,20 +1,34 @@
 /**
 	* Created by Administrator on 19/06/2017.
 	*/
+import org.junit.runner.RunWith
 import org.scalatest._
+import org.scalatest.junit.JUnitRunner
 
-class PersonTest extends FlatSpec with Matchers {
-	"A person" should "have an id assigned to them" in {
-		val person = new Employee
-		person.getId() should be (0)
+@RunWith(classOf[JUnitRunner])
+class PersonTest extends FunSuite {
+	val person = new Employee(0, "Gary", "Gary@gmail.com", true, "1 Long Road", "01234567899", "Password")
+
+	test("A person should have an id"){
+		assert(person.getId() === 0)
 	}
-	it should "have a full name" in {
-		val person = new Employee
-		person.getFullName() should be ("Gary")
+
+	test("A person should have a name") {
+		assert(person.getFullName() === "Gary")
 	}
-	it should "have an email address" in {
-		val person = new Employee
-		person.getEmail() should be ("Gary@gmail.com")
+
+	test("A person should be able to change their name") {
+		person.setFullName("Bob")
+		assert(person.getFullName() === "Bob")
+	}
+
+	test("A person should have an email") {
+		assert(person.getEmail() === "Gary@gmail.com")
+	}
+
+	test("A person should be able to change their email") {
+		person.setEmail("Bob@gmail.com")
+		assert(person.getEmail() === "Bob@gmail.com")
 	}
 
 }

@@ -3,22 +3,38 @@ import scala.collection.mutable.ListBuffer
 /**
 	* Created by Administrator on 19/06/2017.
 	*/
-class DummyItems
-{
 
-}
+class Customer(eId: Int, eFullName: String, eEmail: String, eMembershipPoints : Int) extends Person{
 
-class Customer extends Person{
+	protected var membershipPoints : Int = eMembershipPoints
+	protected var preOrders : ListBuffer[Int] = new ListBuffer[Int]
+
+	id = eId
+	fullName = eFullName
+	email = eEmail
+
 	def getMembershipPoints() : Int = {
-		0
+		membershipPoints
 	}
-	def setMembershipPoints(membershipPoints : Int) : Unit = {
+	def addMemebershipPoints(points : Int) : Unit = {
+		membershipPoints += points
+	}
+	def removeMembershipPoints(points : Int) : Unit = {
+		membershipPoints -= points
+	}
+	def getPreOrders() : ListBuffer[Int] = {
+		preOrders
+	}
+	def addPreOrder(id : Int) : Unit = {
+		preOrders += id
+	}
+	def removePreOrder(id : Int) : Unit = {
+		def iter(index : Int) : Unit = index match {
+			case a if index == preOrders.size => //do nothing
+			case b if preOrders(index) == id => preOrders.remove(index)
+			case _ => iter(index+1)
+		}
+		iter(0)
+	}
 
-	}
-	def getPreOrders() : ListBuffer[DummyItems] = {
-		new ListBuffer[DummyItems]
-	}
-	def setPreOrders(preOrders : ListBuffer[DummyItems]) : Unit = {
-
-	}
 }

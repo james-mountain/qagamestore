@@ -3,22 +3,14 @@
 	*/
 
 trait Person {
-	def getId() : Int = {
-		0
-	}
-	def setId(id : Int) : Unit = {
+	protected var id : Int = 0
+	protected var fullName : String = ""
+	protected var email : String = ""
 
-	}
-	def getFullName() : String = {
-		"Gary"
-	}
-	def setFullName(fullName: String) : Unit = {
-
-	}
-	def getEmail() : String = {
-		"Gary@gmail.com"
-	}
-	def setEmail(email : String) : Unit = {
-
-	}
+	def getId() : Int = {	id	}
+	def setId(id : Int) : Unit = { this.id = id	}
+	def getFullName() : String = { fullName	}
+	def setFullName(fullName: String) : Unit = { this.fullName = fullName 	}
+	def getEmail() : String = {	email	}
+	def setEmail(email : String) : Unit = {	this.email = email }
 }

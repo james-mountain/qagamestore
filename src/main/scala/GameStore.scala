@@ -13,10 +13,17 @@ class GameStore {
   var receipts = List[Receipt]
 
   def getItems() = items
+  def getEmployees() : ListBuffer[Employee] = { employees }
+  def getCustomers() : ListBuffer[Customer] = { customers }
+
   def addItem(item : Item) = items += item
+  def addEmployee(employee : Employee) : Unit = { employees += employee }
+  def addCustomer(customer : Customer) : Unit = { customers += customer }
+
   def updateItem(itemid : Int) : Item = {
     items.filter(item => item.getID() == itemid).head
   }
+
   def deleteItem(itemid : Int) : Boolean = {
     items.find(item => item.getID() == itemid) match {
       case None => false

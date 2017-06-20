@@ -30,6 +30,6 @@ class GameStoreSpec extends FlatSpec with Matchers {
   val anothergamestore = new GameStore
   "Another Game Store" should "be able load the items from a file to import" in {
     anothergamestore.loadItems()
-    anothergamestore.getItems.length shouldBe 11
+    anothergamestore.getItems.length shouldBe 19
   }
 }

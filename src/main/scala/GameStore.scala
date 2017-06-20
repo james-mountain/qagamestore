@@ -54,7 +54,6 @@ class GameStore {
       case Some(cust) => customers.remove(customers.indexOf(cust)); true
     }
   }
-
   def createNewReceipt(): Receipt = {
     var counter = receipts.lastOption match {
       case Some(receipt) => receipt.getId()

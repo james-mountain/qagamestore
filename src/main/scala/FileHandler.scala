@@ -10,12 +10,13 @@ import scala.io.Source
 object FileHandler {
   def loadFiles(gameStore : GameStore): Unit = {
     loadItems(gameStore)
+    loadEmployee(gameStore)
     loadReceipts(gameStore)
   }
 
   def loadItems(gameStore : GameStore) = {
-    val gameFileItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/games.txt").getLines().toList
-    val nonGameItems = Source.fromFile("C:/Users/Administrator/Desktop/GAMESTORE/items.txt").getLines().toList
+    val gameFileItems = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/games").getLines().toList
+    val nonGameItems = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/items").getLines().toList
     val gameFileStrings = gameFileItems.map(str => str.split(","))
     val nonGamefileStrings = nonGameItems.map(str => str.split(","))
 
@@ -47,6 +48,7 @@ object FileHandler {
 
   def saveFiles(gameStore : GameStore) = {
     saveItems(gameStore)
+    saveEmployee(gameStore.employees)
   }
 
   def saveItems(gameStore : GameStore): Unit = {
@@ -66,7 +68,23 @@ object FileHandler {
     items.foreach(item => itemsWriter.println(item.toString))
     itemsWriter.close()
   }
+  
+  def saveEmployee(employees: ListBuffer[Employee]): Unit = {
+    val employeeWriter = new PrintWriter(new File("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/Employee"))
+    employees.foreach(employee => employeeWriter.println(employee.toString))
+    employeeWriter.close()
+  }
 
+  def loadEmployee(gameStore : GameStore): Unit = {
+    val employees = Source.fromFile("C:/Users/Administrator/IdeaProjects/qagamestore/src/main/scala/Employee").getLines().toList
+    val employeeStrings = employees.map(str => str.split(","))
+
+    for (line <- employeeStrings) {
+      //id, Name, Email, isManager, Address. Tel, Passport
+      val employee = new Employee(line(0).toInt, line(1), line(2), line(3).toBoolean, line(4), line(5), line(6))
+      gameStore.addEmployee(employee)
+    }
+    
   def saveReceipts(gameStore : GameStore) = {
     val receiptWriter = new PrintWriter(new File("C:/Users/Administrator/Desktop/GAMESTORE/receipts.txt"))
     gameStore.getReceipts().map(receipt => receipt.toWritableString()).foreach(receipt => receiptWriter.println(receipt.toString))

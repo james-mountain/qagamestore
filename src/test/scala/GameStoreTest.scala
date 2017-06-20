@@ -37,7 +37,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
   it should "be able to remove a customer from its records" in {
     val previousCustomers : Int = gamestore.getCustomers.length
     gamestore.deleteCustomerByID(0)
-    gamestore.getCustomers.length < previousCustomers shouldBe true
+    gamestore.getCustomers.length == previousCustomers-1 shouldBe true
   }
 
   it should "be able to update a customers details" in {

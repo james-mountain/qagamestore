@@ -74,4 +74,15 @@ class GameStore {
     //FileHandler.saveFiles(this)
     FileHandler.saveReceipts(this)
   }
+
+  def totalProfitForDay(date:String):Double={
+    var sum:Double=0
+    receipts.filter(p=>p.date==date).foreach(r=>sum+=r.getTotal())
+    sum
+
+  }
+
+  def dailyReceiptsByDate(date:String)={
+    receipts.filter(rep=>rep.date==date).foreach(println)
+  }
 }

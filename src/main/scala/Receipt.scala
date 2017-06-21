@@ -12,7 +12,7 @@ class Receipt(protected val id:Int){
   def getId()={id}
   def getPrices()={prices.toList}
   def addPrice(price:Double)={prices+=price}
-  def getTotal()={total}
+  def getTotal()={Math.round(total*100.0)/100.0}
   def getItems()={items}
   def getPaymentType()={paymentType}
   def setPaymentType(pType:String)={paymentType=pType}

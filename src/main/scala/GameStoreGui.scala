@@ -11,7 +11,6 @@ class UI extends MainFrame {
   val passwordField = new TextField {
     columns = 20
   }
-  val gamestore = new GameStore
 
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new BoxPanel(Orientation.Horizontal) {
@@ -27,7 +26,7 @@ class UI extends MainFrame {
       contents += Swing.HGlue
       contents += Button("Login") {
         //login functionality
-        val loginUser = gamestore.checkForUser(emailField.text, passwordField.text)
+        val loginUser = GameStore.checkForUser(emailField.text, passwordField.text)
         if (loginUser != null) {
           println("Successful Login")
         } else {

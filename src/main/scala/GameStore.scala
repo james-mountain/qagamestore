@@ -9,7 +9,7 @@ object GameStore {
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
   var receipts : ListBuffer[Receipt] = ListBuffer.empty[Receipt]
 
-  FileHandler.loadFiles(this)
+  FileHandler.loadFiles()
 
   def getItems() = items
   def getEmployees() : ListBuffer[Employee] = { employees }

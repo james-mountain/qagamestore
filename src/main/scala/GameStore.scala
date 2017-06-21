@@ -1,12 +1,9 @@
-import java.time.LocalDate
-
 import scala.collection.mutable.ListBuffer
-import scala.io.Source
 
 /**
   * Created by Administrator on 20/06/2017.
   */
-class GameStore {
+object GameStore {
   var items : ListBuffer[Item] = ListBuffer.empty[Item]
   var employees : ListBuffer[Employee] = ListBuffer.empty[Employee]
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
@@ -19,18 +16,11 @@ class GameStore {
 
   def addItem(item : Item) = items += item
   def addReceipt(receipt : Receipt) = receipts += receipt
-  def addEmployee(employee : Employee) : Unit = { employees += employee }
-  def addCustomer(customer : Customer) : Unit = { customers += customer }
+  def addEmployee(employee : Employee) = employees += employee
+  def addCustomer(customer : Customer) = customers += customer
 
   def updateItem(itemid : Int) : Item = {
     items.filter(item => item.getID() == itemid).head
-  }
-
-  def deleteItem(itemid : Int) : Boolean = {
-    items.find(item => item.getID() == itemid) match {
-      case None => false
-      case Some(item) => items.remove(items.indexOf(item)); true
-    }
   }
 
   def updateEmployee(employeeid : Int) : Employee = {
@@ -39,6 +29,13 @@ class GameStore {
 
   def updateCustomer(customerid : Int) : Customer = {
     customers.filter(customer => customer.getId() == customerid).head
+  }
+
+  def deleteItem(itemid : Int) : Boolean = {
+    items.find(item => item.getID() == itemid) match {
+      case None => false
+      case Some(item) => items.remove(items.indexOf(item)); true
+    }
   }
 
   def deleteEmployeeByID(employeeid : Int) : Boolean = {
@@ -69,10 +66,14 @@ class GameStore {
     }
   }
 
-  def closeReceipt(receipt : Receipt) = {
-    receipts += receipt
-    //FileHandler.saveFiles(this)
-    FileHandler.saveReceipts(this)
+  def closeReceipt(receipt : Receipt) : Boolean = receipt.getPaymentType() match {
+    case "cash" | "card" => {
+      receipts += receipt
+      FileHandler.saveItems()
+      FileHandler.saveReceipts()
+      true
+    }
+    case _ => false
   }
 
   def totalProfitForDay(date:String):Double={

@@ -97,7 +97,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
     GameStore.addItemToReceipt(newreceipt, GameStore.getItemByID(6), 3)
 
     newreceipt.setPaymentType("card")
-    GameStore.closeReceipt(newreceipt) shouldBe true
+    GameStore.closeReceipt(newreceipt, None) shouldBe true
 
     FileHandler.loadFiles()
     GameStore.getReceipts().foreach(receipt => println(receipt.toString()))

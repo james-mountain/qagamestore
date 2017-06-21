@@ -1,3 +1,4 @@
+import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
 
@@ -16,6 +17,7 @@ class TillGUI extends MainFrame {
     val headers = Array("Name"," Quantity", "Price")
     val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
     val emptyvals = Array.empty[Array[String]].map(_.toArray[Any])
+    var currentcustomer : Option[Customer] = None
     var receipttable = new Table(emptyvals, headers) {
       enabled = false
     }
@@ -25,9 +27,23 @@ class TillGUI extends MainFrame {
       override def columns: Int = 10
       enabled = false
     }
+    val totalPointsField = new TextField() {
+      columns = 10
+      override def columns: Int = 10
+      enabled = false
+    }
+    val pointsToSpendField = new TextField() {
+      columns = 10
+      override def columns: Int = 10
+      enabled = false
+    }
     val quantityField = new TextField() {
       columns = 5
       override def columns: Int = 5
+    }
+    val customerEmailField = new TextField() {
+      columns = 30
+      override def columns: Int = 30
     }
     val radioButtons = List(new RadioButton("Card"), new RadioButton("Cash"))
     val buttongroup = new ButtonGroup(radioButtons: _*)
@@ -58,10 +74,11 @@ class TillGUI extends MainFrame {
         case _ => {}
       }
 
-      if (GameStore.closeReceipt(currentReceipt.get)) {
+      if (GameStore.closeReceipt(currentReceipt.get, currentcustomer)) {
         receipttable = new Table(emptyvals, headers)
         scrollPane.viewportView = receipttable
         totalField.text = ""
+        totalPointsField.text = ""
         addItemButton.enabled = false
         enabled = false
 
@@ -90,10 +107,7 @@ class TillGUI extends MainFrame {
 
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += new Label("Customer Email: ")
-      contents += new TextField() {
-        columns = 30
-        override def columns: Int = 30
-      }
+      contents += customerEmailField
 
       contents += new BoxPanel(Orientation.Horizontal) {
         contents ++= radioButtons
@@ -102,6 +116,30 @@ class TillGUI extends MainFrame {
       contents += new Label("Total Price: ")
       contents += totalField
       contents += checkoutButton
+    }
+    contents += new Separator()
+
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new Label("Total Points: ")
+      contents += totalPointsField
+      contents += new Label("Points to Spend: ")
+      contents += pointsToSpendField
+
+      contents += Button("Apply Discount") {
+        GameStore.applyDiscount(currentReceipt.get, currentcustomer.get, pointsToSpendField.text.toInt)
+        totalPointsField.text = currentcustomer.get.getMembershipPoints().toString;
+        pointsToSpendField.text = ""
+        totalField.text = currentReceipt.get.getTotal().toString
+      }
+    }
+
+    listenTo(customerEmailField.keys)
+
+    reactions += {
+      case KeyPressed(_, Key.Enter, _, _) => GameStore.getCustomerByEmail(customerEmailField.text) match {
+        case Some(customer) => totalPointsField.text = customer.getMembershipPoints().toString; pointsToSpendField.enabled = true; currentcustomer = Some(customer)
+        case _ => Dialog.showMessage(contents.head, "No customer was found, do you want to register them?", "No customer found")
+      }
     }
 
     for (e <- contents)

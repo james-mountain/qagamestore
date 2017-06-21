@@ -16,7 +16,7 @@ class CustomerTest extends FunSuite{
 	}
 
 	test("A customer should be able to gain membership points"){
-		customer.addMemebershipPoints(50)
+		customer.addMembershipPoints(50)
 		assert(customer.getMembershipPoints() === 50)
 	}
 

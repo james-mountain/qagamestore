@@ -9,6 +9,8 @@ object GameStore {
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
   var receipts : ListBuffer[Receipt] = ListBuffer.empty[Receipt]
 
+  FileHandler.loadFiles()
+
   def getItems() = items
   def getEmployees() : ListBuffer[Employee] = { employees }
   def getCustomers() : ListBuffer[Customer] = { customers }
@@ -85,5 +87,14 @@ object GameStore {
 
   def dailyReceiptsByDate(date:String)={
     receipts.filter(rep=>rep.date==date).foreach(println)
+  }
+
+  def checkForUser(emailField: String, passwordField: String): Employee ={
+    def iter(i: Int): Employee = i match {
+      case a if i == employees.length => null
+      case b if employees(i).getPass() == passwordField && employees(i).getEmail() == emailField => employees(i)
+      case _ => iter(i+1)
+    }
+    iter(0)
   }
 }

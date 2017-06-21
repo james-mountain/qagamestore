@@ -15,7 +15,7 @@ class UI extends MainFrame {
 
   var frame = new Frame() {
     title = "Game store"
-    preferredSize = new Dimension(800, 800)
+    //preferredSize = new Dimension(800, 800)
     visible = true
     contents = login()
   }
@@ -49,17 +49,14 @@ class UI extends MainFrame {
   listenTo(emailField)
   listenTo(passwordField)
 
-  reactions += {
-    case ButtonClicked(s) =>
-      println("Button click on button: '" + s.text + "'")
-  }
-
   def mainMenu(): Component = {
+    frame.preferredSize = new Dimension(400, 200)
+    frame.title = user.getFullName()
     val contents = new GridPanel(2, 2) {
 
       contents += new GridPanel(1, 2) {
-        contents += new Button("Admin")
-        contents += new Button("Staff")
+        contents += new Button("Update Records")
+        contents += new Button("Tills")
       }
       contents += new GridPanel(1, 3) {
         contents += new Button("Logout") {
@@ -73,15 +70,16 @@ class UI extends MainFrame {
     contents
   }
 
-
   def loginUser() {
     val loginUser = GameStore.checkForUser(emailField.text, passwordField.password.mkString)
     if (loginUser != null) {
       user = loginUser
-      frame.contents = mainMenu()
-    } else {
+      if(user.getIsManager()){
+        frame.contents = mainMenu()
+      }
+   } else {
       println("Incorrect")
-    }
+   }
   }
 
   def Close() {
@@ -91,8 +89,6 @@ class UI extends MainFrame {
   }
 } // end of class
 
-object GameStoreGui {
-  def main(args: Array[String]) {
+object GameStoreGui extends App {
     val ui = new UI
-  }
 }

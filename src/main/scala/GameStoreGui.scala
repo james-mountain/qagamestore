@@ -3,7 +3,7 @@ import scala.swing.event._
 
 class UI extends MainFrame {
 
-  title = "Game Store"
+  title = "Login"
 
   val emailField = new TextField {
     columns = 20

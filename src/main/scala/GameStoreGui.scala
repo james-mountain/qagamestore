@@ -1,5 +1,5 @@
 import java.awt.Dimension
-
+import java.awt.color
 import scala.swing.{PasswordField, _}
 import scala.swing.event._
 
@@ -9,41 +9,69 @@ class UI extends MainFrame {
   val emailField = new TextField {
     columns = 20
   }
-  var passwordField = new PasswordField {
+  val passwordField = new PasswordField {
     columns = 20
   }
 
+  val message = new Label("")
+
+  var adminButton = new Button("Update Records"){
+    maximumSize = new Dimension(200, 175)
+  }
+  var staffButton = new Button("Tills"){
+    maximumSize = new Dimension(200, 175)
+  }
+  var logoutButton = new Button("Logout")
+  var closeButton = new Button("Close")
+
   var frame = new Frame() {
     title = "Login"
-    preferredSize = new Dimension(350, 120)
+    preferredSize = new Dimension(500, 200)
     visible = true
     contents = login()
+    resizable = false
   }
 
   listenTo(emailField)
   listenTo(passwordField)
 
   def login(): Component = {
-    //frame.title = "Login"
     val contents = new BoxPanel(Orientation.Vertical) {
+      contents += Swing.VStrut(20)
       contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(30)
         contents += new Label("Email Address: ")
         contents += emailField
+        contents += Swing.HStrut(30)
       }
 
+      contents += Swing.VStrut(20)
       contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(30)
         contents += new Label("Password:         ")
         contents += passwordField
+        contents += Swing.HStrut(30)
       }
+
+      contents += Swing.VStrut(20)
+
       contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(30)
+        message.peer.setForeground(new Color(255, 0, 0))
+        contents += message
         contents += Swing.HGlue
         contents += Button("Login") {
           loginUser()
         }
+        contents += Swing.HStrut(20)
         contents += Button("Close") {
           Close()
         }
+        contents += Swing.HStrut(30)
       }
+
+      contents += Swing.VStrut(20)
+
     } // end of main contents
     contents
   }
@@ -51,20 +79,32 @@ class UI extends MainFrame {
   def mainMenu(): Component = {
     frame.preferredSize = new Dimension(400, 200)
     frame.title = user.getFullName()
-    val contents = new GridPanel(2, 2) {
+    val contents = new BoxPanel(Orientation.Vertical) {
 
-      contents += new GridPanel(1, 2) {
-        contents += new Button("Update Records")
-        contents += new Button("Tills")
+      contents += Swing.VStrut(20)
+
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(30)
+        contents += adminButton
+        contents += Swing.HStrut(30)
+        contents += staffButton
+        contents += Swing.HStrut(30)
       }
-      contents += new GridPanel(1, 3) {
+
+      contents += Swing.VStrut(20)
+
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(30)
         contents += Button("Logout") {
           logoutUser()
         }
+        contents += Swing.HStrut(30)
         contents += Button("Close") {
           Close()
         }
+        contents += Swing.HStrut(30)
       }
+      contents += Swing.VStrut(20)
     }
     contents
   }
@@ -72,7 +112,7 @@ class UI extends MainFrame {
   def logoutUser() {
     user = null
     frame.title = "Login"
-    frame.preferredSize = new Dimension(350, 120)
+    frame.preferredSize = new Dimension(500, 200)
     frame.contents = login()
   }
 
@@ -83,10 +123,14 @@ class UI extends MainFrame {
     if (loginUser != null) {
       user = loginUser
       if (user.getIsManager()) {
+        message.text = ""
         frame.contents = mainMenu()
       }
     } else {
       println("Incorrect")
+      message.text = "Incorrect email and password, try again"
+      //      new Label("Incorrect")
+      //Dialog.showMessage(this,"Incorrect email and password","try again",Dialog.Message.Error)
     }
   }
 

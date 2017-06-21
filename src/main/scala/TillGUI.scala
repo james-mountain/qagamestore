@@ -38,15 +38,15 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
 
 class TillGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
-  var currentReceipt : Option[Receipt] = None
-  var currentcustomer : Option[Customer] = None
+  var currentReceipt: Option[Receipt] = None
+  var currentcustomer: Option[Customer] = None
   title = "Till Operations -------> Logged in as: " + loggedEmployee.getFullName()
 
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new Label(title)
     contents += new Separator()
 
-    val headers = Array("Name"," Quantity", "Price")
+    val headers = Array("Name", " Quantity", "Price")
     val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
     val emptyvals = Array.empty[Array[String]].map(_.toArray[Any])
     var receipttable = new Table(emptyvals, headers) {
@@ -55,25 +55,33 @@ class TillGUI extends MainFrame {
     var scrollPane = new ScrollPane(receipttable)
     val totalField = new TextField() {
       columns = 10
+
       override def columns: Int = 10
+
       enabled = false
     }
     val totalPointsField = new TextField() {
       columns = 10
+
       override def columns: Int = 10
+
       enabled = false
     }
     val pointsToSpendField = new TextField() {
       columns = 10
+
       override def columns: Int = 10
+
       enabled = false
     }
     val quantityField = new TextField() {
       columns = 5
+
       override def columns: Int = 5
     }
     val customerEmailField = new TextField() {
       columns = 30
+
       override def columns: Int = 30
     }
     val radioButtons = List(new RadioButton("Card"), new RadioButton("Cash"))
@@ -170,7 +178,7 @@ class TillGUI extends MainFrame {
       case KeyPressed(_, Key.Enter, _, _) => GameStore.getCustomerByEmail(customerEmailField.text) match {
         case Some(customer) => totalPointsField.text = customer.getMembershipPoints().toString; pointsToSpendField.enabled = true; currentcustomer = Some(customer)
         case _ => {
-          val doregister = Dialog.showConfirmation(contents.head, "No customer was found, do you want to register them?", optionType=Dialog.Options.YesNo, title="No customer found")
+          val doregister = Dialog.showConfirmation(contents.head, "No customer was found, do you want to register them?", optionType = Dialog.Options.YesNo, title = "No customer found")
           if (doregister == Dialog.Result.Yes) new RegisterCustomerFromTill(pack()).visible = true
         }
       }

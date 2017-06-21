@@ -80,7 +80,7 @@ class TillGUI extends MainFrame {
     val buttongroup = new ButtonGroup(radioButtons: _*)
 
     val addItemButton = Button("Add Item") {
-      if (Try(quantityField.text.toInt).isSuccess) {
+      if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
         val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
         val item = GameStore.getItemByID(itemid)
         GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt)
@@ -157,10 +157,12 @@ class TillGUI extends MainFrame {
       contents += pointsToSpendField
 
       contents += Button("Apply Discount") {
-        GameStore.applyDiscount(currentReceipt.get, currentcustomer.get, pointsToSpendField.text.toInt)
-        totalPointsField.text = currentcustomer.get.getMembershipPoints().toString;
-        pointsToSpendField.text = ""
-        totalField.text = currentReceipt.get.getTotal().toString
+        if (Try(pointsToSpendField.text.toInt).isSuccess && pointsToSpendField.text.toInt > 0) {
+          GameStore.applyDiscount(currentReceipt.get, currentcustomer.get, pointsToSpendField.text.toInt)
+          totalPointsField.text = currentcustomer.get.getMembershipPoints().toString;
+          pointsToSpendField.text = ""
+          totalField.text = currentReceipt.get.getTotal().toString
+        }
       }
     }
 

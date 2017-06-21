@@ -1,3 +1,5 @@
+import java.awt.Dimension
+
 import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
@@ -5,9 +7,37 @@ import scala.util.Try
 /**
   * Created by Administrator on 21/06/2017.
   */
+
+class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
+  val fullnamefield = new TextField() {
+  }
+  val emailfield = new TextField() {
+  }
+
+  preferredSize = new Dimension(300, 128)
+
+  contents = new BoxPanel(Orientation.Vertical) {
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new Label("Full Name: ")
+      contents += fullnamefield
+    }
+
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new Label("Email: ")
+      contents += emailfield
+    }
+
+    contents += Button("Register") {
+      tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
+      close()
+    }
+  }
+}
+
 class TillGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
   var currentReceipt : Option[Receipt] = None
+  var currentcustomer : Option[Customer] = None
   title = "Till Operations -------> Logged in as: " + loggedEmployee.getFullName()
 
   contents = new BoxPanel(Orientation.Vertical) {
@@ -17,7 +47,6 @@ class TillGUI extends MainFrame {
     val headers = Array("Name"," Quantity", "Price")
     val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
     val emptyvals = Array.empty[Array[String]].map(_.toArray[Any])
-    var currentcustomer : Option[Customer] = None
     var receipttable = new Table(emptyvals, headers) {
       enabled = false
     }
@@ -138,7 +167,10 @@ class TillGUI extends MainFrame {
     reactions += {
       case KeyPressed(_, Key.Enter, _, _) => GameStore.getCustomerByEmail(customerEmailField.text) match {
         case Some(customer) => totalPointsField.text = customer.getMembershipPoints().toString; pointsToSpendField.enabled = true; currentcustomer = Some(customer)
-        case _ => Dialog.showMessage(contents.head, "No customer was found, do you want to register them?", "No customer found")
+        case _ => {
+          val doregister = Dialog.showConfirmation(contents.head, "No customer was found, do you want to register them?", optionType=Dialog.Options.YesNo, title="No customer found")
+          if (doregister == Dialog.Result.Yes) new RegisterCustomerFromTill(pack()).visible = true
+        }
       }
     }
 

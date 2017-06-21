@@ -21,6 +21,16 @@ object GameStore {
   def addEmployee(employee : Employee) = employees += employee
   def addCustomer(customer : Customer) = customers += customer
 
+  def registerCustomer(fullName : String, email : String) : Customer = {
+    var counter = customers.lastOption match {
+      case Some(customer) => customer.getId()
+      case None => 0
+    }
+    val newcustomer = new Customer(counter+1, fullName, email, 0)
+    addCustomer(newcustomer)
+    newcustomer
+  }
+
   def getItemByID(itemid : Int) : Item = {
     items.filter(item => item.getID() == itemid).head
   }

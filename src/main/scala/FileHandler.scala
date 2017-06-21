@@ -46,9 +46,11 @@ object FileHandler {
 
     for(line <- customerStrings) {
       val newCustomer = new Customer(line(0).toInt, line(1), line(2), line(3).toInt)
-      val preOrderString = line(4).split('|').toList
-      for (order <- preOrderString) {
-        newCustomer.addPreOrder(order.toInt)
+      if (line.length == 5) {
+        val preOrderString = line(4).split('|').toList
+        for (order <- preOrderString) {
+          newCustomer.addPreOrder(order.toInt)
+        }
       }
       GameStore.addCustomer(newCustomer)
     }   

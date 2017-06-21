@@ -8,7 +8,7 @@ class UI extends MainFrame {
   val emailField = new TextField {
     columns = 20
   }
-  val passwordField = new TextField {
+  val passwordField = new PasswordField {
     columns = 20
   }
 
@@ -30,6 +30,7 @@ class UI extends MainFrame {
         if (loginUser != null) {
           println("Successful Login")
         } else {
+          contents += new Label("Login details are incorrect, try again")
           println("Incorrect")
         }
       }

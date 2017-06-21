@@ -1,6 +1,6 @@
 import java.awt.Dimension
 
-import scala.swing._
+import scala.swing.{PasswordField, _}
 import scala.swing.event._
 
 class UI extends MainFrame {
@@ -9,18 +9,22 @@ class UI extends MainFrame {
   val emailField = new TextField {
     columns = 20
   }
-  val passwordField = new PasswordField {
+  var passwordField = new PasswordField {
     columns = 20
   }
 
   var frame = new Frame() {
-    title = "Game store"
-    //preferredSize = new Dimension(800, 800)
+    title = "Login"
+    preferredSize = new Dimension(350, 120)
     visible = true
     contents = login()
   }
 
+  listenTo(emailField)
+  listenTo(passwordField)
+
   def login(): Component = {
+    //frame.title = "Login"
     val contents = new BoxPanel(Orientation.Vertical) {
       contents += new BoxPanel(Orientation.Horizontal) {
         contents += new Label("Email Address: ")
@@ -34,9 +38,7 @@ class UI extends MainFrame {
       contents += new BoxPanel(Orientation.Horizontal) {
         contents += Swing.HGlue
         contents += Button("Login") {
-          //login functionality
           loginUser()
-
         }
         contents += Button("Close") {
           Close()
@@ -45,9 +47,6 @@ class UI extends MainFrame {
     } // end of main contents
     contents
   }
-
-  listenTo(emailField)
-  listenTo(passwordField)
 
   def mainMenu(): Component = {
     frame.preferredSize = new Dimension(400, 200)
@@ -59,8 +58,8 @@ class UI extends MainFrame {
         contents += new Button("Tills")
       }
       contents += new GridPanel(1, 3) {
-        contents += new Button("Logout") {
-
+        contents += Button("Logout") {
+          logoutUser()
         }
         contents += Button("Close") {
           Close()
@@ -70,25 +69,32 @@ class UI extends MainFrame {
     contents
   }
 
+  def logoutUser() {
+    user = null
+    frame.title = "Login"
+    frame.preferredSize = new Dimension(350, 120)
+    frame.contents = login()
+  }
+
   def loginUser() {
     val loginUser = GameStore.checkForUser(emailField.text, passwordField.password.mkString)
+    passwordField.peer.setText("")
+    emailField.text = ""
     if (loginUser != null) {
       user = loginUser
-      if(user.getIsManager()){
+      if (user.getIsManager()) {
         frame.contents = mainMenu()
       }
-   } else {
+    } else {
       println("Incorrect")
-   }
+    }
   }
 
   def Close() {
-    println("Your email: " + emailField.text)
-    println("Your password: " + passwordField.password.mkString)
     sys.exit(0)
   }
 } // end of class
 
 object GameStoreGui extends App {
-    val ui = new UI
+  val ui = new UI
 }

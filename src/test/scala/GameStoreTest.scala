@@ -24,7 +24,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
 
     GameStore.addItem(newitem)
     GameStore.getItems().length shouldBe 1
-    GameStore.updateItem(itemid).setStockPrice(newstockprice)
+    GameStore.getItemByID(itemid).setStockPrice(newstockprice)
     GameStore.getItems().filter(item => item.getID() == itemid).head.getStockPrice() shouldBe newstockprice
   }
 
@@ -44,7 +44,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
     val newCustomerName = "Jerry"
     GameStore.addCustomer(newCustomer)
     GameStore.getCustomers().length shouldBe 1
-    GameStore.updateCustomer(customerid).setFullName(newCustomerName)
+    GameStore.getCustomerByID(customerid).setFullName(newCustomerName)
     GameStore.getCustomers().filter(customer => customer.getId() == customerid).head.getFullName() shouldBe newCustomerName
   }
   
@@ -68,7 +68,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
 
     FileHandler.loadFiles()
 
-    GameStore.updateEmployee(employeeid).setIsManager(true)
+    GameStore.getEmployeeByID(employeeid).setIsManager(true)
     GameStore.getEmployees().filter(emply => emply.getId() == employeeid).head.getIsManager() shouldBe true
   }
 
@@ -93,8 +93,8 @@ class GameStoreSpec extends FlatSpec with Matchers {
     val newreceipt = GameStore.createNewReceipt()
     FileHandler.loadFiles()
 
-    GameStore.addItemToReceipt(newreceipt, GameStore.updateItem(4), 2)
-    GameStore.addItemToReceipt(newreceipt, GameStore.updateItem(6), 3)
+    GameStore.addItemToReceipt(newreceipt, GameStore.getItemByID(4), 2)
+    GameStore.addItemToReceipt(newreceipt, GameStore.getItemByID(6), 3)
 
     newreceipt.setPaymentType("card")
     GameStore.closeReceipt(newreceipt) shouldBe true

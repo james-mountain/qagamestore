@@ -28,8 +28,10 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
     }
 
     contents += Button("Register") {
-      tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
-      close()
+      if (fullnamefield.text != "" && emailfield.text != "") {
+        tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
+        close()
+      } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
   }
 }

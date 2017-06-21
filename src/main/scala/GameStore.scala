@@ -12,6 +12,8 @@ class GameStore {
   var customers : ListBuffer[Customer] = ListBuffer.empty[Customer]
   var receipts : ListBuffer[Receipt] = ListBuffer.empty[Receipt]
 
+  FileHandler.loadFiles(this)
+
   def getItems() = items
   def getEmployees() : ListBuffer[Employee] = { employees }
   def getCustomers() : ListBuffer[Customer] = { customers }
@@ -73,5 +75,14 @@ class GameStore {
     receipts += receipt
     //FileHandler.saveFiles(this)
     FileHandler.saveReceipts(this)
+  }
+
+  def checkForUser(emailField: String, passwordField: String): Employee ={
+    def iter(i: Int): Employee = i match {
+      case a if i == employees.length => null
+      case b if employees(i).getPass() == passwordField && employees(i).getEmail() == emailField => employees(i)
+      case _ => iter(i+1)
+    }
+    iter(0)
   }
 }

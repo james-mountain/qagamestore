@@ -21,16 +21,30 @@ object GameStore {
   def addEmployee(employee : Employee) = employees += employee
   def addCustomer(customer : Customer) = customers += customer
 
-  def updateItem(itemid : Int) : Item = {
+  def registerCustomer(fullName : String, email : String) : Customer = {
+    var counter = customers.lastOption match {
+      case Some(customer) => customer.getId()
+      case None => 0
+    }
+    val newcustomer = new Customer(counter+1, fullName, email, 0)
+    addCustomer(newcustomer)
+    newcustomer
+  }
+
+  def getItemByID(itemid : Int) : Item = {
     items.filter(item => item.getID() == itemid).head
   }
 
-  def updateEmployee(employeeid : Int) : Employee = {
+  def getEmployeeByID(employeeid : Int) : Employee = {
     employees.filter(employee => employee.getId() == employeeid).head
   }
 
-  def updateCustomer(customerid : Int) : Customer = {
+  def getCustomerByID(customerid : Int) : Customer = {
     customers.filter(customer => customer.getId() == customerid).head
+  }
+
+  def getCustomerByEmail(customermail : String) : Option[Customer] = {
+    customers.find(customer => customer.getEmail() == customermail)
   }
 
   def deleteItem(itemid : Int) : Boolean = {
@@ -68,21 +82,33 @@ object GameStore {
     }
   }
 
-  def closeReceipt(receipt : Receipt) : Boolean = receipt.getPaymentType() match {
+  def closeReceipt(receipt : Receipt, customer : Option[Customer]) : Boolean = receipt.getPaymentType() match {
     case "cash" | "card" => {
       receipts += receipt
+      customer match {
+        case Some(cust) => cust.addMembershipPoints(cust.convertMoneyToPoints(receipt.getTotal()))
+        case _ => {}
+      }
+
       FileHandler.saveItems()
       FileHandler.saveReceipts()
+      FileHandler.saveCustomer()
       true
     }
     case _ => false
   }
 
-  def totalProfitForDay(date:String):Double={
+  def applyDiscount(receipt : Receipt, customer : Customer, points : Int) = {
+    if (customer.convertPointsToMoney(points) <= receipt.getTotal() && customer.getMembershipPoints() >= points) {
+      receipt.setTotal(receipt.getTotal() - customer.convertPointsToMoney(points))
+      customer.removeMembershipPoints(points)
+    }
+  }
+
+  def totalProfitForDay(date:String) : Double = {
     var sum:Double=0
     receipts.filter(p=>p.date==date).foreach(r=>sum+=r.getTotal())
     sum
-
   }
 
   def dailyReceiptsByDate(date:String)={

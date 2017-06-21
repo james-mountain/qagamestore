@@ -21,15 +21,15 @@ object GameStore {
   def addEmployee(employee : Employee) = employees += employee
   def addCustomer(customer : Customer) = customers += customer
 
-  def updateItem(itemid : Int) : Item = {
+  def getItemByID(itemid : Int) : Item = {
     items.filter(item => item.getID() == itemid).head
   }
 
-  def updateEmployee(employeeid : Int) : Employee = {
+  def getEmployeeByID(employeeid : Int) : Employee = {
     employees.filter(employee => employee.getId() == employeeid).head
   }
 
-  def updateCustomer(customerid : Int) : Customer = {
+  def getCustomerByID(customerid : Int) : Customer = {
     customers.filter(customer => customer.getId() == customerid).head
   }
 

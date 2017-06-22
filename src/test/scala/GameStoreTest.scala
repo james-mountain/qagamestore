@@ -1,6 +1,8 @@
 /**
   * Created by James Mountain on 19/06/2017.
   */
+import java.time.LocalDate
+
 import org.scalatest._
 
 class GameStoreSpec extends FlatSpec with Matchers {
@@ -102,5 +104,10 @@ class GameStoreSpec extends FlatSpec with Matchers {
     FileHandler.loadFiles()
     GameStore.getReceipts().foreach(receipt => println(receipt.toString()))
     println("Total profit for 2017-06-20 ="+GameStore.totalProfitForDay("2017-06-20"))
+  }
+
+  it should "be able to forecast the profits for a certain period" in {
+    val forecast = GameStore.forecastProfits(LocalDate.now(), LocalDate.now().plusDays(12))
+    println(forecast)
   }
 }

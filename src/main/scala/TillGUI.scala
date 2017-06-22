@@ -46,6 +46,7 @@ class TillGUI extends MainFrame {
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new Label(title)
     contents += new Separator()
+    
 
     val headers = Array("Name"," Quantity", "Price")
     val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
@@ -81,29 +82,33 @@ class TillGUI extends MainFrame {
     val buttongroup = new ButtonGroup(radioButtons: _*)
 
     val addItemButton = Button("Add Item") {
-        if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
-          val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
-          val item = GameStore.getItemByID(itemid)
-          GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt)
+      if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
+        val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
+        val item = GameStore.getItemByID(itemid) 
+        
+        //check for game preorder
+        item match{
+          case game: Game => if(!game.getReleased()) {preorderList+=itemid; println("pre ordered")}
+          case _ => //do nothing
+        }
 
-          //check for game preorder
-          item match{
-            case game: Game => if(!game.getReleased()) {preorderList+=itemid; println("pre ordered")}
-            case _ => //do nothing
+        GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt) match {
+          case true => {
+            val model = receipttable.model
+            // Get values out of the Table and put them into a vector list
+            val receiptvectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
+
+            // Add the existing vectors to the newly added item together in an array (pretty messy code)
+            val receiptarrays = receiptvectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
+            val receipts = receiptarrays.map(_.toArray[Any])
+
+            receipttable = new Table(receipts, headers)
+            scrollPane.viewportView = receipttable
+
+            totalField.text = currentReceipt.get.getTotal.toString
           }
-
-          val model = receipttable.model
-          // Get values out of the Table and put them into a vector list
-          val receiptvectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
-
-          // Add the existing vectors to the newly added item together in an array (pretty messy code)
-          val receiptarrays = receiptvectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
-          val receipts = receiptarrays.map(_.toArray[Any])
-
-          receipttable = new Table(receipts, headers)
-          scrollPane.viewportView = receipttable
-
-          totalField.text = currentReceipt.get.getTotal.toString
+          case false => Dialog.showMessage(contents.head, "Not enough stock for the desired quantity.", "Couldn't add item to receipt.")
+        }
       }
     }
     val checkoutButton = Button("Checkout") {

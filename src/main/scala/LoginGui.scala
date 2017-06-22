@@ -6,6 +6,33 @@ import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
 
+class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
+  val fullnamefield = new TextField() {
+  }
+  val emailfield = new TextField() {
+  }
+  preferredSize = new Dimension(300, 128)
+
+  contents = new BoxPanel(Orientation.Vertical) {
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new Label("Full Name: ")
+      contents += fullnamefield
+    }
+
+    contents += new BoxPanel(Orientation.Horizontal) {
+      contents += new Label("Email: ")
+      contents += emailfield
+    }
+
+    contents += Button("Register") {
+      if (fullnamefield.text != "" && emailfield.text != "") {
+        tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
+        close()
+      } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
+    }
+  }
+}
+
 class UI extends MainFrame {
   var user: Employee = null
 
@@ -109,9 +136,9 @@ class UI extends MainFrame {
     contents
   }
 
-  def till(): Component = {
-
-  }
+//  def till(): Component = {
+//
+//  }
 ///////////////////////////////////////////////// Functionality ///////////////////////////////////////////////
   def logoutUser() {
     user = null

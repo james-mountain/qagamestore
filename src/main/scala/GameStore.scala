@@ -1,3 +1,6 @@
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -123,5 +126,28 @@ object GameStore {
       case _ => iter(i+1)
     }
     iter(0)
+  }
+
+
+  def forecastProfits(startDate: LocalDate, endDate: LocalDate): Double = {
+    var total : Double = 0.0
+    val daysToAnalyze = 7
+
+    receipts.foreach(receipt => {
+      val date : LocalDate = LocalDate.parse(receipt.date)
+      if(date.isAfter(LocalDate.now().minusDays(daysToAnalyze+1)) && date.isBefore(LocalDate.now()))
+      {
+        total += receipt.getTotal()
+      }
+    })
+
+    val averagePerDay = total/daysToAnalyze.toDouble
+    var daysBetween : Long = 0
+    if(startDate.isBefore(endDate))
+    {
+      daysBetween = startDate.until(endDate, ChronoUnit.DAYS) + 1
+    }
+
+    return averagePerDay*daysBetween
   }
 }

@@ -64,8 +64,10 @@ object FileHandler {
 
     // game items
     for (line <- receiptStrings) {
-      val newItem = new Receipt(line(0).toInt, line(1).split(",").map(string => string.toDouble).toList, line(2).toDouble, line(3).split(",").toList, line(4), line(5))
-      GameStore.addReceipt(newItem)
+      if (line.length == 6) {
+        val newItem = new Receipt(line(0).toInt, line(1).split(",").map(string => string.toDouble).toList, line(2).toDouble, line(3).split(",").toList, line(4), line(5))
+        GameStore.addReceipt(newItem)
+      }
     }
   }
 

@@ -116,25 +116,26 @@ class TillGUI extends MainFrame {
         case Some(button) => currentReceipt.get.setPaymentType(buttongroup.selected.get.text.toLowerCase)
         case _ => {}
       }
+      if(preorderList.size == 0 || currentcustomer != None) {
+        if (GameStore.closeReceipt(currentReceipt.get, currentcustomer)) {
+          receipttable = new Table(emptyvals, headers)
+          scrollPane.viewportView = receipttable
+          totalField.text = ""
+          totalPointsField.text = ""
+          addItemButton.enabled = false
+          enabled = false
 
-      if (GameStore.closeReceipt(currentReceipt.get, currentcustomer) && (preorderList.size == 0 || currentcustomer != None)){
-        receipttable = new Table(emptyvals, headers)
-        scrollPane.viewportView = receipttable
-        totalField.text = ""
-        totalPointsField.text = ""
-        addItemButton.enabled = false
-        enabled = false
-
-        if(preorderList.size != 0){
-          for(i<-0 until preorderList.size){
-            currentcustomer.get.addPreOrder(preorderList(i))
+          if (preorderList.size != 0) {
+            for (i <- 0 until preorderList.size) {
+              currentcustomer.get.addPreOrder(preorderList(i))
+            }
+            preorderList.remove(0, preorderList.size - 1)
           }
-          preorderList.remove(0, preorderList.size-1)
+          //remove the customer from the table
+          currentcustomer = None
+          customerEmailField.text = ""
+          Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
         }
-        //remove the customer from the table
-        currentcustomer = None
-        customerEmailField.text = ""
-        Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
       } else {
         Dialog.showMessage(contents.head, "Transaction incomplete. pre-orders require customer account", "Transaction Incomplete")
       }

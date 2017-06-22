@@ -1,3 +1,6 @@
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -29,6 +32,30 @@ object GameStore {
     val newcustomer = new Customer(counter+1, fullName, email, 0)
     addCustomer(newcustomer)
     newcustomer
+  }
+
+  def registerEmployee(fullName : String, email : String, ismanager : Boolean, address : String, tel : String, pass : String) : Employee = {
+    var counter = employees.lastOption match {
+      case Some(employee) => employee.getId()
+      case None => 0
+    }
+    val newEmployee = new Employee(counter+1, fullName, email, ismanager, address, tel, pass)
+    addEmployee(newEmployee)
+    newEmployee
+  }
+
+  def registerItem(name : String, stockPrice : Double, salePrice : Double, stock: Int, iType : String, rDate : LocalDate, rating: String): Game = {
+    val counter = items.maxBy(item => item.getID()).getID()
+    val newGame = new Game(counter+1, name, stockPrice, salePrice, stock, iType, rDate, rating)
+    addItem(newGame)
+    newGame
+  }
+
+  def registerItem(name : String, stockPrice : Double, salePrice : Double, stock: Int, iType : String) : Item = {
+    val counter = items.maxBy(item => item.getID()).getID()
+    val newItem = new Item(counter+1, name, stockPrice, salePrice, stock, iType)
+    addItem(newItem)
+    newItem
   }
 
   def getItemByID(itemid : Int) : Item = {
@@ -109,11 +136,11 @@ object GameStore {
   def totalProfitForDay(date:String) : Double = {
     var sum:Double=0
     receipts.filter(p=>p.date==date).foreach(r=>sum+=r.getTotal())
-    sum
+    Math.round(sum*100.0)/100.0
   }
 
-  def dailyReceiptsByDate(date:String)={
-    receipts.filter(rep=>rep.date==date).foreach(println)
+  def dailyReceiptsByDate(date:String) : ListBuffer[Receipt] ={
+    receipts.filter(rep=>rep.date==date)
   }
 
   def checkForUser(emailField: String, passwordField: String): Employee ={
@@ -123,5 +150,27 @@ object GameStore {
       case _ => iter(i+1)
     }
     iter(0)
+  }
+
+  def forecastProfits(startDate: LocalDate, endDate: LocalDate): Double = {
+    var total : Double = 0.0
+    val daysToAnalyze = 7
+
+    receipts.foreach(receipt => {
+      val date : LocalDate = LocalDate.parse(receipt.date)
+      if(date.isAfter(LocalDate.now().minusDays(daysToAnalyze+1)) && date.isBefore(LocalDate.now()))
+      {
+        total += receipt.getTotal()
+      }
+    })
+
+    val averagePerDay = total/daysToAnalyze.toDouble
+    var days : Long = 0
+    if(startDate.isBefore(endDate))
+    {
+      days = startDate.until(endDate, ChronoUnit.DAYS) + 1
+    }
+
+    return Math.round(averagePerDay*days*100.0)/100.0
   }
 }

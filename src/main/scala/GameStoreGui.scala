@@ -1,16 +1,19 @@
-import scala.swing._
+import scala.swing.{BoxPanel, _}
 import scala.swing.event._
 
 class UI extends MainFrame {
 
   title = "Game Store"
 
+  peer.setLocationRelativeTo(null)
+
   val emailField = new TextField {
     columns = 20
   }
-  val passwordField = new TextField {
+  val passwordField = new PasswordField {
     columns = 20
   }
+
 
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new BoxPanel(Orientation.Horizontal) {

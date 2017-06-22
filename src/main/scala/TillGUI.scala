@@ -1,5 +1,6 @@
 import java.awt.Dimension
 
+import scala.collection.mutable.ListBuffer
 import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
@@ -13,7 +14,6 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
   }
   val emailfield = new TextField() {
   }
-
   preferredSize = new Dimension(300, 128)
 
   contents = new BoxPanel(Orientation.Vertical) {
@@ -40,6 +40,7 @@ class TillGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
   var currentReceipt : Option[Receipt] = None
   var currentcustomer : Option[Customer] = None
+  var preorderList: ListBuffer[Int] = new ListBuffer
   title = "Till Operations -------> Logged in as: " + loggedEmployee.getFullName()
 
   contents = new BoxPanel(Orientation.Vertical) {
@@ -83,7 +84,14 @@ class TillGUI extends MainFrame {
     val addItemButton = Button("Add Item") {
       if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
         val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
-        val item = GameStore.getItemByID(itemid)
+        val item = GameStore.getItemByID(itemid) 
+        
+        //check for game preorder
+        item match{
+          case game: Game => if(!game.getReleased()) {preorderList+=itemid; println("pre ordered")}
+          case _ => //do nothing
+        }
+
         GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt) match {
           case true => {
             val model = receipttable.model
@@ -108,16 +116,28 @@ class TillGUI extends MainFrame {
         case Some(button) => currentReceipt.get.setPaymentType(buttongroup.selected.get.text.toLowerCase)
         case _ => {}
       }
+      if(preorderList.size == 0 || currentcustomer != None) {
+        if (GameStore.closeReceipt(currentReceipt.get, currentcustomer)) {
+          receipttable = new Table(emptyvals, headers)
+          scrollPane.viewportView = receipttable
+          totalField.text = ""
+          totalPointsField.text = ""
+          addItemButton.enabled = false
+          enabled = false
 
-      if (GameStore.closeReceipt(currentReceipt.get, currentcustomer)) {
-        receipttable = new Table(emptyvals, headers)
-        scrollPane.viewportView = receipttable
-        totalField.text = ""
-        totalPointsField.text = ""
-        addItemButton.enabled = false
-        enabled = false
-
-        Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
+          if (preorderList.size != 0) {
+            for (i <- 0 until preorderList.size) {
+              currentcustomer.get.addPreOrder(preorderList(i))
+            }
+            preorderList.remove(0, preorderList.size - 1)
+          }
+          //remove the customer from the table
+          currentcustomer = None
+          customerEmailField.text = ""
+          Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
+        }
+      } else {
+        Dialog.showMessage(contents.head, "Transaction incomplete. pre-orders require customer account", "Transaction Incomplete")
       }
     }
     addItemButton.enabled = false

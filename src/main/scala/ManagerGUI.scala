@@ -49,14 +49,35 @@ class ManagerGUI(user: Employee) extends MainFrame {
   }
 
   def registerEmployee = new BoxPanel(Orientation.Vertical) {
-    val selemploy = GameStore.getEmployeeByID(employeesComboBox.selection.item.split('|').head.trim.toInt)
+    val selemploy = employeesComboBox.selection.item.split('|').headOption match {
+      case Some(pemp) => Some(GameStore.getEmployeeByID(pemp.trim.toInt))
+      case _ => None
+    }
 
-    val fullnamefield = new TextField() {if (updateMode) text = selemploy.getFullName()}
-    val emailfield = new TextField() {if (updateMode) text = selemploy.getEmail()}
-    val ismanagercheck = new CheckBox() {if (updateMode) selected = selemploy.getIsManager()}
-    val addressfield = new TextField() {if (updateMode) text = selemploy.getAddress()}
-    val telfield = new TextField() {if (updateMode) text = selemploy.getTel()}
-    val passfield = new PasswordField(if (updateMode) selemploy.getPass() else "") {}
+    val fullnamefield = new TextField() {if (updateMode) selemploy match {
+      case Some(emp) => text = emp.getFullName()
+      case _ => {}
+    }}
+    val emailfield = new TextField() {if (updateMode) selemploy match {
+      case Some(emp) => text = emp.getEmail()
+      case _ => {}
+    }}
+    val ismanagercheck = new CheckBox() {if (updateMode) selemploy match {
+      case Some(emp) => selected = emp.getIsManager()
+      case _ => {}
+    }}
+    val addressfield = new TextField() {if (updateMode) selemploy match {
+      case Some(emp) => text = emp.getAddress()
+      case _ => {}
+    }}
+    val telfield = new TextField() {if (updateMode) selemploy match {
+      case Some(emp) => text = emp.getTel()
+      case _ => {}
+    }}
+    val passfield = new PasswordField(if (updateMode) selemploy match {
+      case Some(emp) => emp.getPass()
+      case _ => ""
+    } else "")
 
     contents += new GridPanel(6, 2) {
       contents += new Label("Full Name: ")
@@ -75,12 +96,17 @@ class ManagerGUI(user: Employee) extends MainFrame {
 
     if (updateMode) contents += Button("Update Employee") {
       if (fullnamefield.text != "" && emailfield.text != "" && addressfield.text != "" && telfield.text != "" && passfield.password.mkString != "") {
-        selemploy.setFullName(fullnamefield.text)
-        selemploy.setEmail(emailfield.text)
-        selemploy.setIsManager(ismanagercheck.selected)
-        selemploy.setAddress(addressfield.text)
-        selemploy.setTel(telfield.text)
-        selemploy.setPass(passfield.password.mkString)
+        selemploy match {
+          case Some(emp) => {
+            emp.setFullName(fullnamefield.text)
+            emp.setEmail(emailfield.text)
+            emp.setIsManager(ismanagercheck.selected)
+            emp.setAddress(addressfield.text)
+            emp.setTel(telfield.text)
+            emp.setPass(passfield.password.mkString)
+          }
+          case _ => {}
+        }
         Dialog.showMessage(contents.head, "Updated " + fullnamefield.text + "'s details.", "Employee updated")
         employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
 
@@ -100,10 +126,19 @@ class ManagerGUI(user: Employee) extends MainFrame {
     }
   }
   def registerCustomer = new BoxPanel(Orientation.Vertical) {
-    val selcustomer = GameStore.getCustomerByID(customersComboBox.selection.item.split('|').head.trim.toInt)
+    val selcustomer = customersComboBox.selection.item.split('|').headOption match {
+      case Some(pcust) => Some(GameStore.getCustomerByID(pcust.trim.toInt))
+      case _ => None
+    }
 
-    val fullnamefield = new TextField() {if (updateMode) text = selcustomer.getFullName()}
-    val emailfield = new TextField() {if (updateMode) text = selcustomer.getEmail()}
+    val fullnamefield = new TextField() {if (updateMode) selcustomer match {
+      case Some(cust) => text = cust.getFullName()
+      case _ => {}
+    }}
+    val emailfield = new TextField() {if (updateMode) selcustomer match {
+      case Some(cust) => text = cust.getEmail()
+      case _ => {}
+    }}
 
     contents += new GridPanel(6, 2) {
       contents += new Label("Full Name: ")
@@ -114,8 +149,13 @@ class ManagerGUI(user: Employee) extends MainFrame {
 
     if (updateMode) contents += Button("Update Customer") {
       if (fullnamefield.text != "" && emailfield.text != "") {
-        selcustomer.setFullName(fullnamefield.text)
-        selcustomer.setEmail(emailfield.text)
+        selcustomer match {
+          case Some(cust) => {
+            cust.setFullName(fullnamefield.text)
+            cust.setEmail(emailfield.text)
+          }
+          case _ => {}
+        }
         Dialog.showMessage(contents.head, "Updated " + fullnamefield.text + "'s details.", "Customer updated")
         customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
 
@@ -135,20 +175,38 @@ class ManagerGUI(user: Employee) extends MainFrame {
     }
   }
   def registerItem = new BoxPanel(Orientation.Vertical) {
-    val selitem = GameStore.getItemByID(itemsComboBox.selection.item.split('|').head.trim.toInt)
+    val selitem = itemsComboBox.selection.item.split('|').headOption match {
+      case Some(pitem) => Some(GameStore.getItemByID(pitem.trim.toInt))
+      case _ => None
+    }
 
-    val namfield = new TextField() {if (updateMode) text = selitem.getName()}
-    val stockpricef = new TextField() {if (updateMode) text = selitem.getStockPrice().toString}
-    val salepricef = new TextField() {if (updateMode) text = selitem.getSalePrice().toString}
-    val stockfield = new TextField() {if (updateMode) text = selitem.getStockRemaining().toString}
+    val namfield = new TextField() {if (updateMode) selitem match {
+      case Some(item) => text = item.getName()
+      case _ => {}
+    }}
+    val stockpricef = new TextField() {if (updateMode) selitem match {
+      case Some(item) => text = item.getStockPrice().toString
+      case _ => {}
+    }}
+    val salepricef = new TextField() {if (updateMode) selitem match {
+      case Some(item) => text = item.getSalePrice().toString
+      case _ => {}
+    }}
+    val stockfield = new TextField() {if (updateMode) selitem match {
+      case Some(item) => text = item.getStockRemaining().toString
+      case _ => {}
+    }}
     val typefield = new TextField() {if (updateMode) {
-      text = selitem.getItemType()
+      selitem match {
+        case Some(item) => text = item.getItemType()
+        case _ => {}
+      }
       enabled = false
     }}
 
     val isgamecheck = new CheckBox() {if (updateMode) {
       selected = selitem match {
-        case _ : Game => true
+        case Some(_ : Game) => true
         case _ => false
       }
       enabled = false
@@ -156,28 +214,28 @@ class ManagerGUI(user: Employee) extends MainFrame {
 
     val yearfield = new TextField() {if (updateMode) {
       text = selitem match {
-        case game : Game => game.getReleaseDate().getYear.toString
+        case Some(game : Game) => game.getReleaseDate().getYear.toString
         case _ => ""
       }
       enabled = false
     }}
     val monthfield = new TextField() {if (updateMode) {
       text = selitem match {
-        case game : Game => game.getReleaseDate().getMonthValue.toString
+        case Some(game : Game) => game.getReleaseDate().getMonthValue.toString
         case _ => ""
       }
       enabled = false
     }}
     val dayfield = new TextField() {if (updateMode) {
       text = selitem match {
-        case game : Game => game.getReleaseDate().getDayOfMonth.toString
+        case Some(game : Game) => game.getReleaseDate().getDayOfMonth.toString
         case _ => ""
       }
       enabled = false
     }}
     val ratingfield = new TextField() {if (updateMode) {
       text = selitem match {
-        case game : Game => game.getRating()
+        case Some(game : Game) => game.getRating()
         case _ => ""
       }
       enabled = false
@@ -213,12 +271,19 @@ class ManagerGUI(user: Employee) extends MainFrame {
     def checknumbervalid = Try(stockpricef.text.toDouble).isSuccess && stockpricef.text.toDouble > 0.00 &&
       Try(salepricef.text.toDouble).isSuccess && salepricef.text.toDouble > 0.00 &&
       Try(stockfield.text.toInt).isSuccess && stockfield.text.toInt > 0
+
+    println(checkadditionals, checknumbervalid)
     if (updateMode) contents += Button("Update Item") {
       if (namfield.text != "" && salepricef.text != "" && stockpricef.text != "" && stockfield.text != "" && typefield.text != "" && checkadditionals && checknumbervalid) {
-        selitem.setName(namfield.text)
-        selitem.setStockPrice(stockpricef.text.toDouble)
-        selitem.setSalePrice(salepricef.text.toDouble)
-        selitem.setStockRemaining(stockfield.text.toInt)
+        selitem match {
+          case Some(item) => {
+            item.setName(namfield.text)
+            item.setStockPrice(stockpricef.text.toDouble)
+            item.setSalePrice(salepricef.text.toDouble)
+            item.setStockRemaining(stockfield.text.toInt)
+          }
+          case _ => {}
+        }
 
         Dialog.showMessage(contents.head, "Updated item " + namfield.text + " details.", "Item updated")
         itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
@@ -363,20 +428,29 @@ class ManagerGUI(user: Employee) extends MainFrame {
             replacePanel(registerEmployee)
           }
           contents += Button("Update Employee") {
-            updateMode = true;
-            replacePanel(registerEmployee)
+            employeesComboBox.selection.item.split('|').headOption match {
+              case Some(empid) => {
+                updateMode = true;
+                replacePanel(registerEmployee)
+              }
+              case _ =>
+            }
           }
           contents += Button("Delete Employee") {
-            val employid = employeesComboBox.selection.item.split('|').head.trim.toInt
-            val selemploy = GameStore.getEmployeeByID(employid)
-            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selemploy.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
-            if (dodelete == Dialog.Result.Yes) {
-              GameStore.deleteEmployeeByID(employid)
-              Dialog.showMessage(contents.head, "Deleted " + selemploy.getFullName() + " from the registered employees.", "Employee deleted")
-              employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
+            employeesComboBox.selection.item.split('|').headOption match {
+              case Some(empid) => {
+                val selemploy = GameStore.getEmployeeByID(empid.trim.toInt)
+                val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selemploy.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+                if (dodelete == Dialog.Result.Yes) {
+                  GameStore.deleteEmployeeByID(empid.trim.toInt)
+                  Dialog.showMessage(contents.head, "Deleted " + selemploy.getFullName() + " from the registered employees.", "Employee deleted")
+                  employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
 
-              FileHandler.saveEmployee()
-              replacePanel(new TextArea(placeholder))
+                  FileHandler.saveEmployee()
+                  replacePanel(new TextArea(placeholder))
+                }
+              }
+              case _ =>
             }
           }
           contents += Button("Register Customer") {
@@ -384,20 +458,29 @@ class ManagerGUI(user: Employee) extends MainFrame {
             replacePanel(registerCustomer)
           }
           contents += Button("Update Customer") {
-            updateMode = true;
-            replacePanel(registerCustomer)
+            customersComboBox.selection.item.split('|').headOption match {
+              case Some(cid) => {
+                updateMode = true;
+                replacePanel(registerCustomer)
+              }
+              case _ =>
+            }
           }
           contents += Button("Delete Customer") {
-            val customerid = customersComboBox.selection.item.split('|').head.trim.toInt
-            val selcustomer = GameStore.getCustomerByID(customerid)
-            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selcustomer.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
-            if (dodelete == Dialog.Result.Yes) {
-              GameStore.deleteCustomerByID(customerid)
-              Dialog.showMessage(contents.head, "Deleted " + selcustomer.getFullName() + " from the registered customers.", "Customer deleted")
-              customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
+            customersComboBox.selection.item.split('|').headOption match {
+              case Some(cid) => {
+                val selcustomer = GameStore.getCustomerByID(cid.trim.toInt)
+                val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selcustomer.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+                if (dodelete == Dialog.Result.Yes) {
+                  GameStore.deleteCustomerByID(cid.trim.toInt)
+                  Dialog.showMessage(contents.head, "Deleted " + selcustomer.getFullName() + " from the registered customers.", "Customer deleted")
+                  customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
 
-              FileHandler.saveCustomer()
-              replacePanel(new TextArea(placeholder))
+                  FileHandler.saveCustomer()
+                  replacePanel(new TextArea(placeholder))
+                }
+              }
+              case _ =>
             }
           }
           contents += Button("Add Item") {
@@ -405,20 +488,29 @@ class ManagerGUI(user: Employee) extends MainFrame {
             replacePanel(registerItem)
           }
           contents += Button("Update Item") {
-            updateMode = true;
-            replacePanel(registerItem)
+            itemsComboBox.selection.item.split('|').headOption match {
+              case Some(iid) => {
+                updateMode = true;
+                replacePanel(registerItem)
+              }
+              case _ =>
+            }
           }
           contents += Button("Delete Item") {
-            val iid = itemsComboBox.selection.item.split('|').head.trim.toInt
-            val selitem = GameStore.getItemByID(iid)
-            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selitem.getName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
-            if (dodelete == Dialog.Result.Yes) {
-              GameStore.deleteItem(iid)
-              Dialog.showMessage(contents.head, "Deleted " + selitem.getName() + " from the registered items.", "Item deleted")
-              itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
+            itemsComboBox.selection.item.split('|').headOption match {
+              case Some(iid) => {
+                val selitem = GameStore.getItemByID(iid.trim.toInt)
+                val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selitem.getName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+                if (dodelete == Dialog.Result.Yes) {
+                  GameStore.deleteItem(iid.trim.toInt)
+                  Dialog.showMessage(contents.head, "Deleted " + selitem.getName() + " from the registered items.", "Item deleted")
+                  itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
 
-              FileHandler.saveItems()
-              replacePanel(new TextArea(placeholder))
+                  FileHandler.saveItems()
+                  replacePanel(new TextArea(placeholder))
+                }
+              }
+              case _ =>
             }
           }
           contents += Button("Daily Profit") {
@@ -443,7 +535,6 @@ class ManagerGUI(user: Employee) extends MainFrame {
           }
         }
         contents += HStrut(150)
-
         contents += currentPanel
       }
 

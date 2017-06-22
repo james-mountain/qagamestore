@@ -8,6 +8,7 @@ import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, Main
 class MainMenuUi(user: Employee) extends MainFrame {
   var adminButton = Button("Update Records") {
     maximumSize = new Dimension(200, 175)
+    ScreenManager.admin(user)
   }
   var staffButton = Button("Tills") {
     maximumSize = new Dimension(200, 175)
@@ -32,12 +33,13 @@ class MainMenuUi(user: Employee) extends MainFrame {
 
   def mainMenu(): Component = {
     val contents = new BoxPanel(Orientation.Vertical) {
-      contents += new GridPanel(4,1) {
+      contents += new GridPanel(3,1) {
         contents += adminButton
         contents += staffButton
+        contents += new GridPanel(1,2) {
         contents += logoutButton
         contents += closeButton
-      }
+      }}
     }
     contents
   }

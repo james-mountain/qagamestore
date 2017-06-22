@@ -18,6 +18,7 @@ object ScreenManager extends App{
     screen match {
       case login: LoginUI => login.delete()
       case till: TillGUI => till.delete()
+      case admin: ManagerGUI => admin.delete()
     }
     screen = new MainMenuUi(user)
   }
@@ -28,6 +29,13 @@ object ScreenManager extends App{
       case menu: MainMenuUi => menu.delete()
     }
     screen = new TillGUI(user)
+  }
+
+  def admin(user: Employee): Unit ={
+    screen match {
+      case menu: MainMenuUi => menu.delete()
+    }
+    screen = new ManagerGUI(user)
   }
 
   def close() {

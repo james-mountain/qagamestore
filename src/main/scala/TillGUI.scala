@@ -146,25 +146,26 @@ class TillGUI(user: Employee) extends MainFrame {
           case Some(button) => currentReceipt.get.setPaymentType(buttonGroup.selected.get.text.toLowerCase)
           case _ => {}
         }
+        if (preOrderList.size == 0 || currentCustomer != None) {
+          if (GameStore.closeReceipt(currentReceipt.get, currentCustomer)) {
+            receiptTable = new Table(emptyValues, headers)
+            scrollPane.viewportView = receiptTable
+            totalField.text = ""
+            totalPointsField.text = ""
+            addItemButton.enabled = false
+            enabled = false
 
-        if (GameStore.closeReceipt(currentReceipt.get, currentCustomer) && (preOrderList.size == 0 || currentCustomer != None)) {
-          receiptTable = new Table(emptyValues, headers)
-          scrollPane.viewportView = receiptTable
-          totalField.text = ""
-          totalPointsField.text = ""
-          addItemButton.enabled = false
-          enabled = false
-
-          if (preOrderList.size != 0) {
-            for (i <- 0 until preOrderList.size) {
-              currentCustomer.get.addPreOrder(preOrderList(i))
+            if (preOrderList.size != 0) {
+              for (i <- 0 until preOrderList.size) {
+                currentCustomer.get.addPreOrder(preOrderList(i))
+              }
+              preOrderList.remove(0, preOrderList.size - 1)
             }
-            preOrderList.remove(0, preOrderList.size - 1)
+            //remove the customer from the table
+            currentCustomer = None
+            customerEmailField.text = ""
+            Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
           }
-          //remove the customer from the table
-          currentCustomer = None
-          customerEmailField.text = ""
-          Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
         } else {
           Dialog.showMessage(contents.head, "Transaction incomplete. pre-orders require customer account", "Transaction Incomplete")
         }

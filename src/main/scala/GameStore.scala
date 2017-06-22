@@ -110,20 +110,23 @@ object GameStore {
     } else false
   }
 
-  def closeReceipt(receipt : Receipt, customer : Option[Customer]) : Boolean = receipt.getPaymentType() match {
-    case "cash" | "card" => {
-      receipts += receipt
-      customer match {
-        case Some(cust) => cust.addMembershipPoints(cust.convertMoneyToPoints(receipt.getTotal()))
-        case _ => {}
-      }
+  def closeReceipt(receipt : Receipt, customer : Option[Customer]) : Boolean = {
+    if (receipt.getItems().length == 0) false
+    else receipt.getPaymentType() match {
+      case "cash" | "card" => {
+        receipts += receipt
+        customer match {
+          case Some(cust) => cust.addMembershipPoints(cust.convertMoneyToPoints(receipt.getTotal()))
+          case _ => {}
+        }
 
-      FileHandler.saveItems()
-      FileHandler.saveReceipts()
-      FileHandler.saveCustomer()
-      true
+        FileHandler.saveItems()
+        FileHandler.saveReceipts()
+        FileHandler.saveCustomer()
+        true
+      }
+      case _ => false
     }
-    case _ => false
   }
 
   def applyDiscount(receipt : Receipt, customer : Customer, points : Int) = {

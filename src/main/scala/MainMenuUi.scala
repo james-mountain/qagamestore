@@ -22,33 +22,22 @@ class MainMenuUi(user: Employee) extends MainFrame {
   }
 
   var frame = new Frame() {
+    preferredSize = new Dimension(300, 250)
     title = user.getFullName()
     visible = true
     contents = mainMenu()
-    resizable = false
     centerOnScreen()
+    resizable = false
   }
 
   def mainMenu(): Component = {
     val contents = new BoxPanel(Orientation.Vertical) {
-      contents += Swing.VStrut(20)
-      contents += new BoxPanel(Orientation.Horizontal) {
-        contents += Swing.HStrut(30)
+      contents += new GridPanel(4,1) {
         contents += adminButton
-        contents += Swing.HStrut(30)
         contents += staffButton
-        contents += Swing.HStrut(30)
-      }
-
-      contents += Swing.VStrut(20)
-      contents += new BoxPanel(Orientation.Horizontal) {
-        contents += Swing.HStrut(30)
         contents += logoutButton
-        contents += Swing.HStrut(30)
         contents += closeButton
-        contents += Swing.HStrut(30)
       }
-      contents += Swing.VStrut(20)
     }
     contents
   }

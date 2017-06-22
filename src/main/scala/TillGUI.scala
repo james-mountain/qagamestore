@@ -10,9 +10,9 @@ import scala.util.Try
   */
 
 class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
-  val fullnamefield = new TextField() {
+  val fullNameField = new TextField() {
   }
-  val emailfield = new TextField() {
+  val emailField = new TextField() {
   }
 
   preferredSize = new Dimension(300, 128)
@@ -20,17 +20,17 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += new Label("Full Name: ")
-      contents += fullnamefield
+      contents += fullNameField
     }
 
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += new Label("Email: ")
-      contents += emailfield
+      contents += emailField
     }
 
     contents += Button("Register") {
-      if (fullnamefield.text != "" && emailfield.text != "") {
-        tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
+      if (fullNameField.text != "" && emailField.text != "") {
+        tillGUI.currentCustomer = Some(GameStore.registerCustomer(fullNameField.text, emailField.text))
         close()
       } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
@@ -38,11 +38,11 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
 }
 
 class TillGUI(user: Employee) extends MainFrame {
-  var loggedEmployee = user
+  var loggedEmployee: Employee = user
   var currentReceipt: Option[Receipt] = None
-  var currentcustomer: Option[Customer] = None
-  var preorderList: ListBuffer[Int] = new ListBuffer
-  var backButton = if (loggedEmployee.getIsManager()) {
+  var currentCustomer: Option[Customer] = None
+  var preOrderList: ListBuffer[Int] = new ListBuffer
+  var backButton: Button = if (loggedEmployee.getIsManager()) {
     Button("Back") {
       ScreenManager.menu(loggedEmployee)
     }
@@ -57,6 +57,7 @@ class TillGUI(user: Employee) extends MainFrame {
     visible = true
     contents = till()
     centerOnScreen()
+    resizable = false
   }
 
   def till(): Component = {
@@ -68,11 +69,11 @@ class TillGUI(user: Employee) extends MainFrame {
 
       val headers = Array("Name", " Quantity", "Price")
       val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
-      val emptyvals = Array.empty[Array[String]].map(_.toArray[Any])
-      var receipttable = new Table(emptyvals, headers) {
+      val emptyValues: Array[Array[Any]] = Array.empty[Array[String]].map(_.toArray[Any])
+      var receiptTable: Table = new Table(emptyValues, headers) {
         enabled = false
       }
-      var scrollPane = new ScrollPane(receipttable)
+      var scrollPane = new ScrollPane(receiptTable)
       val totalField = new TextField() {
         columns = 10
 
@@ -105,17 +106,17 @@ class TillGUI(user: Employee) extends MainFrame {
         override def columns: Int = 30
       }
       val radioButtons = List(new RadioButton("Card"), new RadioButton("Cash"))
-      val buttongroup = new ButtonGroup(radioButtons: _*)
+      val buttonGroup = new ButtonGroup(radioButtons: _*)
 
-      val addItemButton = Button("Add Item") {
+      val addItemButton: Button = Button("Add Item") {
         if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
-          val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
-          val item = GameStore.getItemByID(itemid)
+          val itemId = itemsComboBox.selection.item.split('|').head.trim.toInt
+          val item = GameStore.getItemByID(itemId)
 
-          //check for game preorder
+          //check for game pre-order
           item match {
             case game: Game => if (!game.getReleased()) {
-              preorderList += itemid;
+              preOrderList += itemId
               println("pre ordered")
             }
             case _ => //do nothing
@@ -123,16 +124,16 @@ class TillGUI(user: Employee) extends MainFrame {
 
           GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt) match {
             case true => {
-              val model = receipttable.model
+              val model = receiptTable.model
               // Get values out of the Table and put them into a vector list
-              val receiptvectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
+              val receiptVectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
 
               // Add the existing vectors to the newly added item together in an array (pretty messy code)
-              val receiptarrays = receiptvectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
-              val receipts = receiptarrays.map(_.toArray[Any])
+              val receiptArrays = receiptVectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
+              val receipts = receiptArrays.map(_.toArray[Any])
 
-              receipttable = new Table(receipts, headers)
-              scrollPane.viewportView = receipttable
+              receiptTable = new Table(receipts, headers)
+              scrollPane.viewportView = receiptTable
 
               totalField.text = currentReceipt.get.getTotal.toString
             }
@@ -141,27 +142,27 @@ class TillGUI(user: Employee) extends MainFrame {
         }
       }
       val checkoutButton = Button("Checkout") {
-        buttongroup.selected match {
-          case Some(button) => currentReceipt.get.setPaymentType(buttongroup.selected.get.text.toLowerCase)
+        buttonGroup.selected match {
+          case Some(button) => currentReceipt.get.setPaymentType(buttonGroup.selected.get.text.toLowerCase)
           case _ => {}
         }
 
-        if (GameStore.closeReceipt(currentReceipt.get, currentcustomer) && (preorderList.size == 0 || currentcustomer != None)) {
-          receipttable = new Table(emptyvals, headers)
-          scrollPane.viewportView = receipttable
+        if (GameStore.closeReceipt(currentReceipt.get, currentCustomer) && (preOrderList.size == 0 || currentCustomer != None)) {
+          receiptTable = new Table(emptyValues, headers)
+          scrollPane.viewportView = receiptTable
           totalField.text = ""
           totalPointsField.text = ""
           addItemButton.enabled = false
           enabled = false
 
-          if (preorderList.size != 0) {
-            for (i <- 0 until preorderList.size) {
-              currentcustomer.get.addPreOrder(preorderList(i))
+          if (preOrderList.size != 0) {
+            for (i <- 0 until preOrderList.size) {
+              currentCustomer.get.addPreOrder(preOrderList(i))
             }
-            preorderList.remove(0, preorderList.size - 1)
+            preOrderList.remove(0, preOrderList.size - 1)
           }
           //remove the customer from the table
-          currentcustomer = None
+          currentCustomer = None
           customerEmailField.text = ""
           Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
         } else {
@@ -186,7 +187,6 @@ class TillGUI(user: Employee) extends MainFrame {
         contents += addItemButton
       }
       contents += new Separator()
-
       contents += scrollPane
       contents += new Separator()
 
@@ -212,8 +212,8 @@ class TillGUI(user: Employee) extends MainFrame {
 
         contents += Button("Apply Discount") {
           if (Try(pointsToSpendField.text.toInt).isSuccess && pointsToSpendField.text.toInt > 0) {
-            GameStore.applyDiscount(currentReceipt.get, currentcustomer.get, pointsToSpendField.text.toInt)
-            totalPointsField.text = currentcustomer.get.getMembershipPoints().toString;
+            GameStore.applyDiscount(currentReceipt.get, currentCustomer.get, pointsToSpendField.text.toInt)
+            totalPointsField.text = currentCustomer.get.getMembershipPoints().toString
             pointsToSpendField.text = ""
             totalField.text = currentReceipt.get.getTotal().toString
           }
@@ -228,10 +228,10 @@ class TillGUI(user: Employee) extends MainFrame {
 
       reactions += {
         case KeyPressed(_, Key.Enter, _, _) => GameStore.getCustomerByEmail(customerEmailField.text) match {
-          case Some(customer) => totalPointsField.text = customer.getMembershipPoints().toString; pointsToSpendField.enabled = true; currentcustomer = Some(customer)
+          case Some(customer) => totalPointsField.text = customer.getMembershipPoints().toString; pointsToSpendField.enabled = true; currentCustomer = Some(customer)
           case _ => {
-            val doregister = Dialog.showConfirmation(contents.head, "No customer was found, do you want to register them?", optionType = Dialog.Options.YesNo, title = "No customer found")
-            if (doregister == Dialog.Result.Yes) new RegisterCustomerFromTill(pack()).visible = true
+            val doRegister = Dialog.showConfirmation(contents.head, "No customer was found, do you want to register them?", optionType = Dialog.Options.YesNo, title = "No customer found")
+            if (doRegister == Dialog.Result.Yes) new RegisterCustomerFromTill(pack()).visible = true
           }
         }
       }

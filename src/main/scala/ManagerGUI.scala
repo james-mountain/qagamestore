@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 import scala.collection.mutable.ListBuffer
 import scala.swing.ListView.Renderer
-import scala.swing.{BoxPanel, Button, CheckBox, ComboBox, Component, Dialog, FlowPanel, GridPanel, Label, ListView, MainFrame, Orientation, PasswordField, ScrollPane, Separator, TextArea, TextField}
+import scala.swing.{BoxPanel, Button, CheckBox, ComboBox, Component, Dialog, FlowPanel, Frame, GridPanel, Label, ListView, MainFrame, Orientation, PasswordField, ScrollPane, Separator, TextArea, TextField}
 import scala.swing.Swing.HStrut
 import scala.util.Try
 
@@ -13,7 +13,7 @@ import scala.util.Try
 
 class ReceiptsPanel(managerGUI: ManagerGUI, receipts : ListBuffer[Receipt]) extends MainFrame {
   preferredSize = new Dimension(700, 350)
-
+  centerOnScreen()
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new FlowPanel(new ScrollPane(new ListView(receipts) {
       renderer = Renderer(_.toString())
@@ -22,8 +22,9 @@ class ReceiptsPanel(managerGUI: ManagerGUI, receipts : ListBuffer[Receipt]) exte
   }
 }
 
-class ManagerGUI extends MainFrame {
-  var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
+class ManagerGUI(user: Employee) extends MainFrame {
+
+  var loggedEmployee = user
   val placeholder = "Select an option from the left menu."
   var itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName()))
   var employeesComboBox = new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName()))
@@ -31,11 +32,22 @@ class ManagerGUI extends MainFrame {
 
   var updateMode = false
 
-  title = "Manager Operations -------> Logged in as: " + loggedEmployee.getFullName()
   var curPanelContents : Component = new TextArea(placeholder)
   var currentPanel = new BoxPanel(Orientation.Vertical) {
     contents += curPanelContents
   }
+
+  var backButton: Button = Button("Back") {
+    ScreenManager.menu(loggedEmployee)
+  }
+
+  var frame = new Frame(){
+    title = "Manager Operations -------> Logged in as: " + loggedEmployee.getFullName()
+    visible = true
+    contents = manager()
+    centerOnScreen()
+  }
+
   def registerEmployee = new BoxPanel(Orientation.Vertical) {
     val selemploy = GameStore.getEmployeeByID(employeesComboBox.selection.item.split('|').head.trim.toInt)
 
@@ -228,6 +240,7 @@ class ManagerGUI extends MainFrame {
       } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
   }
+
   def dailyProfitPanel = new BoxPanel(Orientation.Vertical) {
     val yearfield = new TextField()
     val monthfield = new TextField()
@@ -253,6 +266,7 @@ class ManagerGUI extends MainFrame {
       }
     }
   }
+
   def dailyReceiptsPanel = new BoxPanel(Orientation.Vertical) {
     val yearfield = new TextField()
     val monthfield = new TextField()
@@ -277,6 +291,7 @@ class ManagerGUI extends MainFrame {
       }
     }
   }
+
   def forecastProfitsPanel = new BoxPanel(Orientation.Vertical) {
     val yearfield = new TextField()
     val monthfield = new TextField()
@@ -324,106 +339,120 @@ class ManagerGUI extends MainFrame {
     currentPanel.repaint()
   }
 
-  contents = new BoxPanel(Orientation.Vertical) {
-    contents += new Label(title)
-    contents += new Separator()
+  def manager():Component= {
+    var contents = new BoxPanel(Orientation.Vertical) {
+      contents += new Label(title)
+      contents += new Separator()
 
-    contents += new GridPanel(2, 3) {
+      contents += new GridPanel(2, 3) {
         contents += new Label("Items")
         contents += new Label("Employees")
         contents += new Label("Customers")
         contents += itemsComboBox
         contents += employeesComboBox
         contents += customersComboBox
-    }
-
-    contents += new BoxPanel(Orientation.Horizontal) {
-      contents += new BoxPanel(Orientation.Vertical) {
-        contents += Button("Register Employee") {
-          updateMode = false; replacePanel(registerEmployee)
-        }
-        contents += Button("Update Employee") {
-          updateMode = true; replacePanel(registerEmployee)
-        }
-        contents += Button("Delete Employee") {
-          val employid = employeesComboBox.selection.item.split('|').head.trim.toInt
-          val selemploy = GameStore.getEmployeeByID(employid)
-          val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete "+selemploy.getFullName(), optionType=Dialog.Options.YesNo, title="Confirm deletion")
-          if (dodelete == Dialog.Result.Yes) {
-            GameStore.deleteEmployeeByID(employid)
-            Dialog.showMessage(contents.head, "Deleted " + selemploy.getFullName() + " from the registered employees.", "Employee deleted")
-            employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
-
-            FileHandler.saveEmployee()
-            replacePanel(new TextArea(placeholder))
-          }
-        }
-        contents += Button("Register Customer") {
-          updateMode = false; replacePanel(registerCustomer)
-        }
-        contents += Button("Update Customer") {
-          updateMode = true; replacePanel(registerCustomer)
-        }
-        contents += Button("Delete Customer") {
-          val customerid = customersComboBox.selection.item.split('|').head.trim.toInt
-          val selcustomer = GameStore.getCustomerByID(customerid)
-          val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete "+selcustomer.getFullName(), optionType=Dialog.Options.YesNo, title="Confirm deletion")
-          if (dodelete == Dialog.Result.Yes) {
-            GameStore.deleteCustomerByID(customerid)
-            Dialog.showMessage(contents.head, "Deleted " + selcustomer.getFullName() + " from the registered customers.", "Customer deleted")
-            customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
-
-            FileHandler.saveCustomer()
-            replacePanel(new TextArea(placeholder))
-          }
-        }
-        contents += Button("Add Item") {
-          updateMode = false; replacePanel(registerItem)
-        }
-        contents += Button("Update Item") {
-          updateMode = true; replacePanel(registerItem)
-        }
-        contents += Button("Delete Item") {
-          val iid = itemsComboBox.selection.item.split('|').head.trim.toInt
-          val selitem = GameStore.getItemByID(iid)
-          val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete "+selitem.getName(), optionType=Dialog.Options.YesNo, title="Confirm deletion")
-          if (dodelete == Dialog.Result.Yes) {
-            GameStore.deleteItem(iid)
-            Dialog.showMessage(contents.head, "Deleted " + selitem.getName() + " from the registered items.", "Item deleted")
-            itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
-
-            FileHandler.saveItems()
-            replacePanel(new TextArea(placeholder))
-          }
-        }
-        contents += Button("Daily Profit") {
-          replacePanel(dailyProfitPanel)
-        }
-        contents += Button("Daily Sales") {
-          replacePanel(dailyReceiptsPanel)
-        }
-        contents += Button("Forecast Profit") {
-          replacePanel(forecastProfitsPanel)
-        }
-
-        // stack overflow snippet
-        val maxWidth = contents map {
-          (button: Component) => button.maximumSize
-        } maxBy { _.width }
-
-        contents foreach {
-          (button: Component) => button.maximumSize = maxWidth
-        }
       }
-      contents += HStrut(150)
 
-      contents += currentPanel
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += new BoxPanel(Orientation.Vertical) {
+          contents += Button("Register Employee") {
+            updateMode = false;
+            replacePanel(registerEmployee)
+          }
+          contents += Button("Update Employee") {
+            updateMode = true;
+            replacePanel(registerEmployee)
+          }
+          contents += Button("Delete Employee") {
+            val employid = employeesComboBox.selection.item.split('|').head.trim.toInt
+            val selemploy = GameStore.getEmployeeByID(employid)
+            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selemploy.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+            if (dodelete == Dialog.Result.Yes) {
+              GameStore.deleteEmployeeByID(employid)
+              Dialog.showMessage(contents.head, "Deleted " + selemploy.getFullName() + " from the registered employees.", "Employee deleted")
+              employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
+
+              FileHandler.saveEmployee()
+              replacePanel(new TextArea(placeholder))
+            }
+          }
+          contents += Button("Register Customer") {
+            updateMode = false;
+            replacePanel(registerCustomer)
+          }
+          contents += Button("Update Customer") {
+            updateMode = true;
+            replacePanel(registerCustomer)
+          }
+          contents += Button("Delete Customer") {
+            val customerid = customersComboBox.selection.item.split('|').head.trim.toInt
+            val selcustomer = GameStore.getCustomerByID(customerid)
+            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selcustomer.getFullName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+            if (dodelete == Dialog.Result.Yes) {
+              GameStore.deleteCustomerByID(customerid)
+              Dialog.showMessage(contents.head, "Deleted " + selcustomer.getFullName() + " from the registered customers.", "Customer deleted")
+              customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
+
+              FileHandler.saveCustomer()
+              replacePanel(new TextArea(placeholder))
+            }
+          }
+          contents += Button("Add Item") {
+            updateMode = false;
+            replacePanel(registerItem)
+          }
+          contents += Button("Update Item") {
+            updateMode = true;
+            replacePanel(registerItem)
+          }
+          contents += Button("Delete Item") {
+            val iid = itemsComboBox.selection.item.split('|').head.trim.toInt
+            val selitem = GameStore.getItemByID(iid)
+            val dodelete = Dialog.showConfirmation(contents.head, "Do you wish to delete " + selitem.getName(), optionType = Dialog.Options.YesNo, title = "Confirm deletion")
+            if (dodelete == Dialog.Result.Yes) {
+              GameStore.deleteItem(iid)
+              Dialog.showMessage(contents.head, "Deleted " + selitem.getName() + " from the registered items.", "Item deleted")
+              itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
+
+              FileHandler.saveItems()
+              replacePanel(new TextArea(placeholder))
+            }
+          }
+          contents += Button("Daily Profit") {
+            replacePanel(dailyProfitPanel)
+          }
+          contents += Button("Daily Sales") {
+            replacePanel(dailyReceiptsPanel)
+          }
+          contents += Button("Forecast Profit") {
+            replacePanel(forecastProfitsPanel)
+          }
+
+          // stack overflow snippet
+          val maxWidth = contents map {
+            (button: Component) => button.maximumSize
+          } maxBy {
+            _.width
+          }
+
+          contents foreach {
+            (button: Component) => button.maximumSize = maxWidth
+          }
+        }
+        contents += HStrut(150)
+
+        contents += currentPanel
+      }
+
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += HStrut(600)
+        contents += backButton
+      }
     }
+    contents
   }
-}
-object ManagerGUIMain {
-  def main(args: Array[String]) {
-    val ui = new ManagerGUI
-    ui.visible = true
+
+  def delete(): Unit = {
+    frame.dispose()
   }
 }

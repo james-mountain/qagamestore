@@ -75,11 +75,12 @@ object GameStore {
     new Receipt(counter+1)
   }
 
-  def addItemToReceipt(receipt: Receipt, item : Item, quantity : Int) = {
+  def addItemToReceipt(receipt: Receipt, item : Item, quantity : Int) : Boolean = {
     if (quantity <= item.getStockRemaining()) {
       receipt.addItem(item, quantity)
       item.setStockRemaining(item.getStockRemaining() - quantity)
-    }
+      true
+    } else false
   }
 
   def closeReceipt(receipt : Receipt, customer : Option[Customer]) : Boolean = receipt.getPaymentType() match {

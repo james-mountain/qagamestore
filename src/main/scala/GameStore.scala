@@ -142,12 +142,12 @@ object GameStore {
     })
 
     val averagePerDay = total/daysToAnalyze.toDouble
-    var daysBetween : Long = 0
+    var days : Long = 0
     if(startDate.isBefore(endDate))
     {
-      daysBetween = startDate.until(endDate, ChronoUnit.DAYS) + 1
+      days = startDate.until(endDate, ChronoUnit.DAYS) + 1
     }
 
-    return averagePerDay*daysBetween
+    return Math.round(averagePerDay*days*100.0)/100.0
   }
 }

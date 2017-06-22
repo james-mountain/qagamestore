@@ -2,6 +2,9 @@ import java.awt.Dimension
 import java.awt.color
 import scala.swing.{PasswordField, _}
 import scala.swing.event._
+import scala.swing.event.{Key, KeyPressed}
+import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
+import scala.util.Try
 
 class UI extends MainFrame {
   var user: Employee = null
@@ -35,6 +38,8 @@ class UI extends MainFrame {
   listenTo(emailField)
   listenTo(passwordField)
 
+  ///////////////////////////////////////////////// Windows / GUIs ///////////////////////////////////////////////
+
   def login(): Component = {
     val contents = new BoxPanel(Orientation.Vertical) {
       contents += Swing.VStrut(20)
@@ -54,7 +59,6 @@ class UI extends MainFrame {
       }
 
       contents += Swing.VStrut(20)
-
       contents += new BoxPanel(Orientation.Horizontal) {
         contents += Swing.HStrut(30)
         message.peer.setForeground(new Color(255, 0, 0))
@@ -69,7 +73,6 @@ class UI extends MainFrame {
         }
         contents += Swing.HStrut(30)
       }
-
       contents += Swing.VStrut(20)
 
     } // end of main contents
@@ -80,9 +83,7 @@ class UI extends MainFrame {
     frame.preferredSize = new Dimension(400, 200)
     frame.title = user.getFullName()
     val contents = new BoxPanel(Orientation.Vertical) {
-
       contents += Swing.VStrut(20)
-
       contents += new BoxPanel(Orientation.Horizontal) {
         contents += Swing.HStrut(30)
         contents += adminButton
@@ -92,7 +93,6 @@ class UI extends MainFrame {
       }
 
       contents += Swing.VStrut(20)
-
       contents += new BoxPanel(Orientation.Horizontal) {
         contents += Swing.HStrut(30)
         contents += Button("Logout") {
@@ -109,6 +109,10 @@ class UI extends MainFrame {
     contents
   }
 
+  def till(): Component = {
+
+  }
+///////////////////////////////////////////////// Functionality ///////////////////////////////////////////////
   def logoutUser() {
     user = null
     frame.title = "Login"
@@ -129,8 +133,6 @@ class UI extends MainFrame {
     } else {
       println("Incorrect")
       message.text = "Incorrect email and password, try again"
-      //      new Label("Incorrect")
-      //Dialog.showMessage(this,"Incorrect email and password","try again",Dialog.Message.Error)
     }
   }
 

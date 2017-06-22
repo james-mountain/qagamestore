@@ -138,8 +138,8 @@ object GameStore {
     Math.round(sum*100.0)/100.0
   }
 
-  def dailyReceiptsByDate(date:String)={
-    receipts.filter(rep=>rep.date==date).foreach(println)
+  def dailyReceiptsByDate(date:String) : ListBuffer[Receipt] ={
+    receipts.filter(rep=>rep.date==date)
   }
 
   def checkForUser(emailField: String, passwordField: String): Employee ={

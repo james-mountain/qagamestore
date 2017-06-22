@@ -1,12 +1,26 @@
+import java.awt.Dimension
 import java.time.LocalDate
 
-import scala.swing.{BoxPanel, Button, CheckBox, ComboBox, Component, Dialog, GridPanel, Label, MainFrame, Orientation, PasswordField, Separator, TextArea, TextField}
+import scala.collection.mutable.ListBuffer
+import scala.swing.ListView.Renderer
+import scala.swing.{BoxPanel, Button, CheckBox, ComboBox, Component, Dialog, FlowPanel, GridPanel, Label, ListView, MainFrame, Orientation, PasswordField, ScrollPane, Separator, TextArea, TextField}
 import scala.swing.Swing.HStrut
 import scala.util.Try
 
 /**
   * Created by Administrator on 22/06/2017.
   */
+
+class ReceiptsPanel(managerGUI: ManagerGUI, receipts : ListBuffer[Receipt]) extends MainFrame {
+  preferredSize = new Dimension(700, 350)
+
+  contents = new BoxPanel(Orientation.Vertical) {
+    contents += new FlowPanel(new ScrollPane(new ListView(receipts) {
+      renderer = Renderer(_.toString())
+    }))
+    contents += Button("Close") {close()}
+  }
+}
 
 class ManagerGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
@@ -238,6 +252,30 @@ class ManagerGUI extends MainFrame {
       }
     }
   }
+  def dailyReceiptsPanel = new BoxPanel(Orientation.Vertical) {
+    val yearfield = new TextField()
+    val monthfield = new TextField()
+    val dayfield = new TextField()
+
+    contents += new GridPanel(1, 2) {
+      contents += new Label("Date: ")
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += new Label("DD")
+        contents += dayfield
+        contents += new Label("MM")
+        contents += monthfield
+        contents += new Label("YYYY")
+        contents += yearfield
+      }
+    }
+
+    contents += Button("Daily Profits") {
+      val localdatestr = yearfield.text+"-"+monthfield.text+"-"+dayfield.text
+      if (Try(LocalDate.parse(localdatestr)).isSuccess) {
+        new ReceiptsPanel(pack(), GameStore.dailyReceiptsByDate(localdatestr)).visible = true
+      }
+    }
+  }
 
   def replacePanel(newComponent : Component): Unit = {
     currentPanel.contents -= curPanelContents
@@ -322,7 +360,9 @@ class ManagerGUI extends MainFrame {
         contents += Button("Daily Profit") {
           replacePanel(dailyProfitPanel)
         }
-        contents += Button("Daily Sales") {}
+        contents += Button("Daily Sales") {
+          replacePanel(dailyReceiptsPanel)
+        }
         contents += Button("Forecast Profit") {}
 
         // stack overflow snippet

@@ -24,6 +24,7 @@ class ReceiptsPanel(managerGUI: ManagerGUI, receipts : ListBuffer[Receipt]) exte
 
 class ManagerGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
+  val placeholder = "Select an option from the left menu."
   var itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName()))
   var employeesComboBox = new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName()))
   var customersComboBox = new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName()))
@@ -31,7 +32,7 @@ class ManagerGUI extends MainFrame {
   var updateMode = false
 
   title = "Manager Operations -------> Logged in as: " + loggedEmployee.getFullName()
-  var curPanelContents : Component = new TextArea("dasdasdas")
+  var curPanelContents : Component = new TextArea(placeholder)
   var currentPanel = new BoxPanel(Orientation.Vertical) {
     contents += curPanelContents
   }
@@ -72,7 +73,7 @@ class ManagerGUI extends MainFrame {
         employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
 
         FileHandler.saveEmployee()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       }
     }
     else contents += Button("Register") {
@@ -82,7 +83,7 @@ class ManagerGUI extends MainFrame {
         employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
 
         FileHandler.saveEmployee()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
   }
@@ -107,7 +108,7 @@ class ManagerGUI extends MainFrame {
         customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
 
         FileHandler.saveCustomer()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       }
     }
     else contents += Button("Register") {
@@ -117,7 +118,7 @@ class ManagerGUI extends MainFrame {
         customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
 
         FileHandler.saveCustomer()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
   }
@@ -208,7 +209,7 @@ class ManagerGUI extends MainFrame {
         itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
 
         FileHandler.saveItems()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       }
     }
     else contents += Button("Add Item") {
@@ -223,7 +224,7 @@ class ManagerGUI extends MainFrame {
         itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
 
         FileHandler.saveItems()
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
     }
   }
@@ -248,7 +249,7 @@ class ManagerGUI extends MainFrame {
       val localdatestr = yearfield.text+"-"+monthfield.text+"-"+dayfield.text
       if (Try(LocalDate.parse(localdatestr)).isSuccess) {
         Dialog.showMessage(contents.head, "Daily profits for " + localdatestr + " : £" + GameStore.totalProfitForDay(localdatestr), "Daily Profits")
-        replacePanel(new TextArea("dasdasdas"))
+        replacePanel(new TextArea(placeholder))
       }
     }
   }
@@ -269,10 +270,48 @@ class ManagerGUI extends MainFrame {
       }
     }
 
-    contents += Button("Daily Profits") {
+    contents += Button("Daily Receipts") {
       val localdatestr = yearfield.text+"-"+monthfield.text+"-"+dayfield.text
       if (Try(LocalDate.parse(localdatestr)).isSuccess) {
         new ReceiptsPanel(pack(), GameStore.dailyReceiptsByDate(localdatestr)).visible = true
+      }
+    }
+  }
+  def forecastProfitsPanel = new BoxPanel(Orientation.Vertical) {
+    val yearfield = new TextField()
+    val monthfield = new TextField()
+    val dayfield = new TextField()
+    val yearfield2 = new TextField()
+    val monthfield2 = new TextField()
+    val dayfield2 = new TextField()
+
+    contents += new GridPanel(2, 2) {
+      contents += new Label("Start Date: ")
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += new Label("DD")
+        contents += dayfield
+        contents += new Label("MM")
+        contents += monthfield
+        contents += new Label("YYYY")
+        contents += yearfield
+      }
+      contents += new Label("End Date: ")
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += new Label("DD")
+        contents += dayfield2
+        contents += new Label("MM")
+        contents += monthfield2
+        contents += new Label("YYYY")
+        contents += yearfield2
+      }
+    }
+
+    contents += Button("Forecasted Profits") {
+      val localdatestr = yearfield.text+"-"+monthfield.text+"-"+dayfield.text
+      val localdate2str = yearfield2.text+"-"+monthfield2.text+"-"+dayfield2.text
+      if (Try(LocalDate.parse(localdatestr)).isSuccess && Try(LocalDate.parse(localdate2str)).isSuccess) {
+        Dialog.showMessage(contents.head, "Forecasted profits for " + localdatestr + " to " + localdate2str + ": £" + GameStore.forecastProfits(LocalDate.parse(localdatestr), LocalDate.parse(localdate2str)), "Forecasted Profits")
+        replacePanel(new TextArea(placeholder))
       }
     }
   }
@@ -316,7 +355,7 @@ class ManagerGUI extends MainFrame {
             employeesComboBox.peer.setModel(new ComboBox(GameStore.getEmployees().map(emp => emp.getId() + " | " + emp.getFullName())).peer.getModel)
 
             FileHandler.saveEmployee()
-            replacePanel(new TextArea("dasdasdas"))
+            replacePanel(new TextArea(placeholder))
           }
         }
         contents += Button("Register Customer") {
@@ -335,7 +374,7 @@ class ManagerGUI extends MainFrame {
             customersComboBox.peer.setModel(new ComboBox(GameStore.getCustomers().map(cust => cust.getId() + " | " + cust.getFullName())).peer.getModel)
 
             FileHandler.saveCustomer()
-            replacePanel(new TextArea("dasdasdas"))
+            replacePanel(new TextArea(placeholder))
           }
         }
         contents += Button("Add Item") {
@@ -354,7 +393,7 @@ class ManagerGUI extends MainFrame {
             itemsComboBox.peer.setModel(new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName())).peer.getModel)
 
             FileHandler.saveItems()
-            replacePanel(new TextArea("dasdasdas"))
+            replacePanel(new TextArea(placeholder))
           }
         }
         contents += Button("Daily Profit") {
@@ -363,7 +402,9 @@ class ManagerGUI extends MainFrame {
         contents += Button("Daily Sales") {
           replacePanel(dailyReceiptsPanel)
         }
-        contents += Button("Forecast Profit") {}
+        contents += Button("Forecast Profit") {
+          replacePanel(forecastProfitsPanel)
+        }
 
         // stack overflow snippet
         val maxWidth = contents map {

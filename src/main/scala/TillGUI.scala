@@ -116,8 +116,7 @@ class TillGUI(user: Employee) extends MainFrame {
           //check for game pre-order
           item match {
             case game: Game => if (!game.getReleased()) {
-              preOrderList += itemId
-              println("pre ordered")
+              (1 to quantityField.text.toInt).foreach(i => preOrderList += itemId)
             }
             case _ => //do nothing
           }
@@ -147,7 +146,7 @@ class TillGUI(user: Employee) extends MainFrame {
           case _ => {}
         }
         if (preOrderList.size == 0 || currentCustomer != None) {
-          if (GameStore.closeReceipt(currentReceipt.get, currentCustomer)) {
+          if (GameStore.closeReceipt(currentReceipt.get, currentCustomer,preOrderList)) {
             receiptTable = new Table(emptyValues, headers)
             scrollPane.viewportView = receiptTable
             totalField.text = ""
@@ -155,12 +154,6 @@ class TillGUI(user: Employee) extends MainFrame {
             addItemButton.enabled = false
             enabled = false
 
-            if (preOrderList.size != 0) {
-              for (i <- 0 until preOrderList.size) {
-                currentCustomer.get.addPreOrder(preOrderList(i))
-              }
-              preOrderList.remove(0, preOrderList.size - 1)
-            }
             //remove the customer from the table
             currentCustomer = None
             customerEmailField.text = ""

@@ -209,9 +209,12 @@ class ManagerGUI(user: Employee) extends MainFrame {
       contents += ratingfield
     }
 
-    val checkadditionals = isgamecheck.selected && (Try(dayfield.text.toInt).isSuccess && Try(monthfield.text.toInt).isSuccess && Try(yearfield.text.toInt).isSuccess && ratingfield.text != "") || !isgamecheck.selected
+    def checkadditionals = isgamecheck.selected && (Try(dayfield.text.toInt).isSuccess && Try(monthfield.text.toInt).isSuccess && Try(yearfield.text.toInt).isSuccess && ratingfield.text != "") || !isgamecheck.selected
+    def checknumbervalid = Try(stockpricef.text.toDouble).isSuccess && stockpricef.text.toDouble > 0.00 &&
+      Try(salepricef.text.toDouble).isSuccess && salepricef.text.toDouble > 0.00 &&
+      Try(stockfield.text.toInt).isSuccess && stockfield.text.toInt > 0
     if (updateMode) contents += Button("Update Item") {
-      if (namfield.text != "" && salepricef.text != "" && stockpricef.text != "" && stockfield.text != "" && typefield.text != "" && checkadditionals) {
+      if (namfield.text != "" && salepricef.text != "" && stockpricef.text != "" && stockfield.text != "" && typefield.text != "" && checkadditionals && checknumbervalid) {
         selitem.setName(namfield.text)
         selitem.setStockPrice(stockpricef.text.toDouble)
         selitem.setSalePrice(salepricef.text.toDouble)
@@ -226,7 +229,7 @@ class ManagerGUI(user: Employee) extends MainFrame {
     }
     else contents += Button("Add Item") {
       val localdatestr = yearfield.text+"-"+monthfield.text+"-"+dayfield.text
-      if (namfield.text != "" && salepricef.text != "" && stockpricef.text != "" && stockfield.text != "" && typefield.text != "" && checkadditionals && Try(LocalDate.parse(localdatestr)).isSuccess) {
+      if (namfield.text != "" && salepricef.text != "" && stockpricef.text != "" && stockfield.text != "" && typefield.text != "" && checkadditionals && Try(LocalDate.parse(localdatestr)).isSuccess && checknumbervalid) {
         if (isgamecheck.selected) {
           GameStore.registerItem(namfield.text, stockpricef.text.toDouble, salepricef.text.toDouble, stockfield.text.toInt, typefield.text, LocalDate.parse(localdatestr), ratingfield.text)
         } else {

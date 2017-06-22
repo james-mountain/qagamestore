@@ -5,6 +5,8 @@ import java.time.LocalDate
 
 import org.scalatest._
 
+import scala.collection.mutable.ListBuffer
+
 class GameStoreSpec extends FlatSpec with Matchers {
   val newitem = new Item(9999, "XBOX", 500.00, 500.0, 10, "Console")
   val newCustomer = new Customer(9999, "Peter", "Peter@gmail.com", 5000)
@@ -100,7 +102,7 @@ class GameStoreSpec extends FlatSpec with Matchers {
     GameStore.addItemToReceipt(newreceipt, GameStore.getItemByID(6), 3)
 
     newreceipt.setPaymentType("card")
-    GameStore.closeReceipt(newreceipt, None) shouldBe true
+    GameStore.closeReceipt(newreceipt, None,ListBuffer.empty[Int]) shouldBe true
 
     FileHandler.loadFiles()
     GameStore.getReceipts().foreach(receipt => println(receipt.toString()))

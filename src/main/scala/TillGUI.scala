@@ -1,5 +1,6 @@
 import java.awt.Dimension
 
+import scala.collection.mutable.ListBuffer
 import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
@@ -13,7 +14,6 @@ class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
   }
   val emailfield = new TextField() {
   }
-
   preferredSize = new Dimension(300, 128)
 
   contents = new BoxPanel(Orientation.Vertical) {
@@ -40,6 +40,7 @@ class TillGUI extends MainFrame {
   var loggedEmployee = new Employee(2, "Simon", "simon@hotmail.co.uk", true, "3434 House Street", "01234 562452", "password")
   var currentReceipt : Option[Receipt] = None
   var currentcustomer : Option[Customer] = None
+  var preorderList: ListBuffer[Int] = new ListBuffer
   title = "Till Operations -------> Logged in as: " + loggedEmployee.getFullName()
 
   contents = new BoxPanel(Orientation.Vertical) {
@@ -80,23 +81,29 @@ class TillGUI extends MainFrame {
     val buttongroup = new ButtonGroup(radioButtons: _*)
 
     val addItemButton = Button("Add Item") {
-      if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
-        val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
-        val item = GameStore.getItemByID(itemid)
-        GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt)
+        if (Try(quantityField.text.toInt).isSuccess && quantityField.text.toInt > 0) {
+          val itemid = itemsComboBox.selection.item.split('|').head.trim.toInt
+          val item = GameStore.getItemByID(itemid)
+          GameStore.addItemToReceipt(currentReceipt.get, item, quantityField.text.toInt)
 
-        val model = receipttable.model
-        // Get values out of the Table and put them into a vector list
-        val receiptvectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
+          //check for game preorder
+          item match{
+            case game: Game => if(!game.getReleased()) {preorderList+=itemid; println("pre ordered")}
+            case _ => //do nothing
+          }
 
-        // Add the existing vectors to the newly added item together in an array (pretty messy code)
-        val receiptarrays = receiptvectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
-        val receipts = receiptarrays.map(_.toArray[Any])
+          val model = receipttable.model
+          // Get values out of the Table and put them into a vector list
+          val receiptvectors = for (i <- 0 until model.getRowCount) yield (model.getValueAt(i, 0), model.getValueAt(i, 1), model.getValueAt(i, 2))
 
-        receipttable = new Table(receipts, headers)
-        scrollPane.viewportView = receipttable
+          // Add the existing vectors to the newly added item together in an array (pretty messy code)
+          val receiptarrays = receiptvectors.map(e => Array(e._1, e._2, e._3)).toArray :+ Array(item.getName(), quantityField.text.toInt, item.getSalePrice() * quantityField.text.toInt)
+          val receipts = receiptarrays.map(_.toArray[Any])
 
-        totalField.text = currentReceipt.get.getTotal.toString
+          receipttable = new Table(receipts, headers)
+          scrollPane.viewportView = receipttable
+
+          totalField.text = currentReceipt.get.getTotal.toString
       }
     }
     val checkoutButton = Button("Checkout") {
@@ -105,7 +112,7 @@ class TillGUI extends MainFrame {
         case _ => {}
       }
 
-      if (GameStore.closeReceipt(currentReceipt.get, currentcustomer)) {
+      if (GameStore.closeReceipt(currentReceipt.get, currentcustomer) && (preorderList.size != 0 && currentcustomer == None)){
         receipttable = new Table(emptyvals, headers)
         scrollPane.viewportView = receipttable
         totalField.text = ""

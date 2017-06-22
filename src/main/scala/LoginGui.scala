@@ -1,65 +1,30 @@
 import java.awt.Dimension
 import java.awt.color
+
+import scala.collection.mutable.ListBuffer
 import scala.swing.{PasswordField, _}
 import scala.swing.event._
 import scala.swing.event.{Key, KeyPressed}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Dialog, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
 
-class RegisterCustomerFromTill(tillGUI: TillGUI) extends MainFrame {
-  val fullnamefield = new TextField() {
-  }
-  val emailfield = new TextField() {
-  }
-  preferredSize = new Dimension(300, 128)
-
-  contents = new BoxPanel(Orientation.Vertical) {
-    contents += new BoxPanel(Orientation.Horizontal) {
-      contents += new Label("Full Name: ")
-      contents += fullnamefield
-    }
-
-    contents += new BoxPanel(Orientation.Horizontal) {
-      contents += new Label("Email: ")
-      contents += emailfield
-    }
-
-    contents += Button("Register") {
-      if (fullnamefield.text != "" && emailfield.text != "") {
-        tillGUI.currentcustomer = Some(GameStore.registerCustomer(fullnamefield.text, emailfield.text))
-        close()
-      } else Dialog.showMessage(contents.head, "Invalid credentials, please ensure all fields have values", "Invalid credentials")
-    }
-  }
-}
-
-class UI extends MainFrame {
+class LoginUI extends MainFrame {
   var user: Employee = null
-
   val emailField = new TextField {
     columns = 20
   }
   val passwordField = new PasswordField {
     columns = 20
   }
-
   val message = new Label("")
-
-  var adminButton = new Button("Update Records"){
-    maximumSize = new Dimension(200, 175)
-  }
-  var staffButton = new Button("Tills"){
-    maximumSize = new Dimension(200, 175)
-  }
-  var logoutButton = new Button("Logout")
   var closeButton = new Button("Close")
-
   var frame = new Frame() {
     title = "Login"
     preferredSize = new Dimension(500, 200)
     visible = true
     contents = login()
     resizable = false
+    centerOnScreen()
   }
 
   listenTo(emailField)
@@ -106,40 +71,7 @@ class UI extends MainFrame {
     contents
   }
 
-  def mainMenu(): Component = {
-    frame.preferredSize = new Dimension(400, 200)
-    frame.title = user.getFullName()
-    val contents = new BoxPanel(Orientation.Vertical) {
-      contents += Swing.VStrut(20)
-      contents += new BoxPanel(Orientation.Horizontal) {
-        contents += Swing.HStrut(30)
-        contents += adminButton
-        contents += Swing.HStrut(30)
-        contents += staffButton
-        contents += Swing.HStrut(30)
-      }
-
-      contents += Swing.VStrut(20)
-      contents += new BoxPanel(Orientation.Horizontal) {
-        contents += Swing.HStrut(30)
-        contents += Button("Logout") {
-          logoutUser()
-        }
-        contents += Swing.HStrut(30)
-        contents += Button("Close") {
-          Close()
-        }
-        contents += Swing.HStrut(30)
-      }
-      contents += Swing.VStrut(20)
-    }
-    contents
-  }
-
-//  def till(): Component = {
-//
-//  }
-///////////////////////////////////////////////// Functionality ///////////////////////////////////////////////
+  ///////////////////////////////////////////////// Functionality ///////////////////////////////////////////////
   def logoutUser() {
     user = null
     frame.title = "Login"
@@ -155,7 +87,10 @@ class UI extends MainFrame {
       user = loginUser
       if (user.getIsManager()) {
         message.text = ""
-        frame.contents = mainMenu()
+        ScreenManager.menu(user)
+      } else {
+        message.text = ""
+        ScreenManager.till(user)
       }
     } else {
       println("Incorrect")
@@ -163,11 +98,12 @@ class UI extends MainFrame {
     }
   }
 
+  def delete(): Unit = {
+    frame.dispose()
+  }
+
   def Close() {
     sys.exit(0)
   }
 } // end of class
 
-object GameStoreGui extends App {
-  val ui = new UI
-}

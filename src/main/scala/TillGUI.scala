@@ -1,7 +1,7 @@
 import java.awt.Dimension
 
 import scala.collection.mutable.ListBuffer
-import scala.swing.event.{Key, KeyPressed}
+import scala.swing.event.{ButtonClicked, Key, KeyPressed, MouseClicked}
 import scala.swing.{BoxPanel, Button, ButtonGroup, ComboBox, Component, Dialog, Frame, Label, MainFrame, Orientation, RadioButton, ScrollPane, Separator, Swing, Table, TextField}
 import scala.util.Try
 
@@ -66,7 +66,6 @@ class TillGUI(user: Employee) extends MainFrame {
       contents += new Label(title)
       contents += new Separator()
 
-
       val headers = Array("Name", " Quantity", "Price")
       val itemsComboBox = new ComboBox(GameStore.getItems().map(item => item.getID() + " | " + item.getName() + " £" + item.getSalePrice()))
       val emptyValues: Array[Array[Any]] = Array.empty[Array[String]].map(_.toArray[Any])
@@ -105,6 +104,36 @@ class TillGUI(user: Employee) extends MainFrame {
 
         override def columns: Int = 30
       }
+      val startsalebutton : Button = new Button("Start Sale") {
+        def updateText = {
+          this.text = if (currentReceipt.nonEmpty) "Cancel" else "Start Sale"
+        }
+
+        reactions += {
+          case ButtonClicked(_) => {
+            if (currentReceipt.isEmpty) {
+              currentReceipt = Some(GameStore.createNewReceipt())
+              addItemButton.enabled = true
+              checkoutButton.enabled = true
+            } else {
+              currentReceipt = None
+              addItemButton.enabled = false
+              checkoutButton.enabled = false
+
+              receiptTable = new Table(emptyValues, headers)
+              scrollPane.viewportView = receiptTable
+              totalField.text = ""
+              totalPointsField.text = ""
+              currentCustomer = None
+              customerEmailField.text = ""
+              FileHandler.loadItems()
+            }
+
+            updateText
+          }
+        }
+      }
+
       val radioButtons = List(new RadioButton("Card"), new RadioButton("Cash"))
       val buttonGroup = new ButtonGroup(radioButtons: _*)
 
@@ -140,40 +169,41 @@ class TillGUI(user: Employee) extends MainFrame {
           }
         }
       }
-      val checkoutButton = Button("Checkout") {
-        buttonGroup.selected match {
-          case Some(button) => currentReceipt.get.setPaymentType(buttonGroup.selected.get.text.toLowerCase)
-          case _ => {}
-        }
-        if (preOrderList.size == 0 || currentCustomer != None) {
-          if (GameStore.closeReceipt(currentReceipt.get, currentCustomer,preOrderList)) {
-            receiptTable = new Table(emptyValues, headers)
-            scrollPane.viewportView = receiptTable
-            totalField.text = ""
-            totalPointsField.text = ""
-            addItemButton.enabled = false
-            enabled = false
+      val checkoutButton = new Button("Checkout") {
+        reactions += {
+          case ButtonClicked(_) => {
+            buttonGroup.selected match {
+              case Some(button) => currentReceipt.get.setPaymentType(buttonGroup.selected.get.text.toLowerCase)
+              case _ => {}
+            }
+            if (preOrderList.size == 0 || currentCustomer != None) {
+              if (GameStore.closeReceipt(currentReceipt.get, currentCustomer,preOrderList)) {
+                receiptTable = new Table(emptyValues, headers)
+                scrollPane.viewportView = receiptTable
+                totalField.text = ""
+                totalPointsField.text = ""
+                addItemButton.enabled = false
+                enabled = false
 
-            //remove the customer from the table
-            currentCustomer = None
-            customerEmailField.text = ""
-            Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
+                //remove the customer from the table
+                currentCustomer = None
+                customerEmailField.text = ""
+
+                startsalebutton.text = "Start Sale"
+
+                Dialog.showMessage(contents.head, "Transaction complete and saved", "Transaction Complete")
+              }
+            } else {
+              Dialog.showMessage(contents.head, "Transaction incomplete. pre-orders require customer account", "Transaction Incomplete")
+            }
           }
-        } else {
-          Dialog.showMessage(contents.head, "Transaction incomplete. pre-orders require customer account", "Transaction Incomplete")
         }
       }
-
-
       addItemButton.enabled = false
       checkoutButton.enabled = false
 
       contents += new BoxPanel(Orientation.Horizontal) {
-        contents += Button("Start Sale") {
-          currentReceipt = Some(GameStore.createNewReceipt())
-          addItemButton.enabled = true
-          checkoutButton.enabled = true
-        }
+        contents += startsalebutton
 
         contents += itemsComboBox
         contents += new Label("Quantity: ")

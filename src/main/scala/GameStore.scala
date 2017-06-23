@@ -110,15 +110,24 @@ object GameStore {
     } else false
   }
 
-  def closeReceipt(receipt : Receipt, customer : Option[Customer]) : Boolean = {
+  def closeReceipt(receipt : Receipt, customer : Option[Customer],preOrderList:ListBuffer[Int]) : Boolean = {
     if (receipt.getItems().length == 0) false
     else receipt.getPaymentType() match {
       case "cash" | "card" => {
         receipts += receipt
         customer match {
-          case Some(cust) => cust.addMembershipPoints(cust.convertMoneyToPoints(receipt.getTotal()))
+          case Some(cust) => {
+            cust.addMembershipPoints(cust.convertMoneyToPoints(receipt.getTotal()))
+            if (preOrderList.size != 0) {
+              for (i <- 0 until preOrderList.size) {
+                cust.addPreOrder(preOrderList(i))
+              }
+              preOrderList.remove(0, preOrderList.size - 1)
+            }
+          }
           case _ => {}
         }
+
 
         FileHandler.saveItems()
         FileHandler.saveReceipts()
